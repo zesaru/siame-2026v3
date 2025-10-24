@@ -1,0 +1,75 @@
+# SIAME 2026v3 - Configuración de Agentes
+# Configuración específica para cada tipo de agente especializado
+
+# Configuración global de agentes
+global_agent_settings:
+  # Configuración de comunicación
+  communication:
+    protocol: "http"
+    timeout_seconds: 30
+    retry_attempts: 3
+    heartbeat_interval_seconds: 30
+
+  # Configuración de rendimiento
+  performance:
+    max_concurrent_tasks: 3
+    memory_limit_mb: 512
+    cpu_limit_percent: 80
+    task_timeout_seconds: 300
+
+  # Configuración de logging
+  logging:
+    level: "INFO"
+    include_performance_metrics: true
+    log_task_details: true
+
+# Agente Clasificador de Documentos
+document_classifier:
+  # Información básica
+  info:
+    name: "Document Classifier Agent"
+    version: "1.0.0"
+    description: "Especialista en clasificación automática de documentos diplomáticos"
+    capabilities:
+      - "document_classification"
+      - "type_detection"
+      - "metadata_extraction"
+      - "content_analysis"
+
+  # Configuración específica
+  configuration:
+    # Umbrales de confianza
+    confidence_thresholds:
+      min_classification_confidence: 0.4
+      high_confidence_threshold: 0.8
+      very_high_confidence_threshold: 0.9
+
+    # Clasificación
+    classification:
+      max_alternatives: 3
+      enable_pattern_matching: true
+      enable_keyword_analysis: true
+      enable_structural_analysis: true
+      enable_linguistic_analysis: false  # Requiere librerías adicionales
+
+    # Formatos soportados
+    supported_formats:
+      - "txt"
+      - "pdf"
+      - "doc"
+      - "docx"
+      - "rtf"
+
+    # Configuración de procesamiento
+    processing:
+      max_file_size_mb: 50
+      text_extraction_timeout_seconds: 60
+      content_analysis_timeout_seconds: 120
+
+    # Patrones de clasificación personalizable
+    classification_patterns:
+      enable_custom_patterns: true
+      pattern_weight: 0.4
+      keyword_weight: 0.3
+      structural_weight: 0.2
+      metadata_weight: 0.1

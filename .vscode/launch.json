@@ -1,0 +1,213 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🎭 Debug Orchestrator",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/orchestrator/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      },
+      "args": [],
+      "justMyCode": false,
+      "stopOnEntry": false
+    },
+    {
+      "name": "🤖 Debug Document Processor Agent",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/agents/document_processor/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      }
+    },
+    {
+      "name": "🗄️ Debug Database Manager Agent",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/agents/database_manager/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      }
+    },
+    {
+      "name": "☁️ Debug Azure Specialist Agent",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/agents/azure_specialist/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      }
+    },
+    {
+      "name": "🛡️ Debug Security Guardian Agent",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/agents/security_guardian/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      }
+    },
+    {
+      "name": "🔄 Debug Workflow Manager Agent",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/agents/workflow_manager/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      }
+    },
+    {
+      "name": "📡 Debug Communication Hub Agent",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/agents/communication_hub/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      }
+    },
+    {
+      "name": "🧪 Debug QA Specialist Agent",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/backend/agents/quality_assurance/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "DEBUG_MODE": "true",
+        "LOG_LEVEL": "DEBUG"
+      }
+    },
+    {
+      "name": "🌐 Debug Next.js Frontend",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/frontend/node_modules/.bin/next",
+      "args": ["dev"],
+      "cwd": "${workspaceFolder}/src/frontend",
+      "env": {
+        "NODE_ENV": "development",
+        "DEBUG": "1"
+      },
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "ready - started server on .+, url: (https?:\\/\\/.+)",
+        "uriFormat": "%s"
+      }
+    },
+    {
+      "name": "🧪 Debug Jest Tests (Frontend)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/frontend/node_modules/.bin/jest",
+      "args": ["--runInBand", "--no-cache"],
+      "cwd": "${workspaceFolder}/src/frontend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "🔬 Debug PyTest (Backend)",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "${workspaceFolder}/src/backend/tests",
+        "-v",
+        "--tb=short"
+      ],
+      "cwd": "${workspaceFolder}/src/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/backend",
+        "TESTING": "true"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "🚀 Debug Full System (Attach)",
+      "type": "python",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}/src/backend",
+          "remoteRoot": "/app"
+        }
+      ]
+    },
+    {
+      "name": "🐳 Debug Docker Orchestrator",
+      "type": "python",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5679
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}/src/backend",
+          "remoteRoot": "/app"
+        }
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🚀 Full SIAME Development",
+      "configurations": [
+        "🎭 Debug Orchestrator",
+        "🌐 Debug Next.js Frontend"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "development"
+      }
+    },
+    {
+      "name": "🧪 All Tests",
+      "configurations": [
+        "🔬 Debug PyTest (Backend)",
+        "🧪 Debug Jest Tests (Frontend)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "testing"
+      }
+    }
+  ]
+}

@@ -1,0 +1,682 @@
+# ============================================================================
+# SIAME 2026v3 - Sistema Inteligente de Administración y Manejo de Expedientes
+# Configuración del Sistema para Documentos Diplomáticos
+# ============================================================================
+
+project:
+  name: "SIAME 2026v3"
+  description: "Sistema Inteligente de Administración y Manejo de Expedientes"
+  version: "3.0.0"
+  environment: "development"  # development, staging, production
+  code_name: "Expediente Digital Diplomático"
+  deployment_date: "2026-01-01"
+  ministry: "Ministerio de Asuntos Exteriores, Unión Europea y Cooperación"
+
+metadata:
+  created_by: "SIAME Development Team"
+  created_date: "2024-12-29"
+  last_updated: "2024-12-29"
+  configuration_version: "1.0.0"
+  contact_email: "siame-dev@maeuec.es"
+
+# Informaci�n general del sistema
+system:
+  name: "SIAME 2026v3"
+  version: "3.0.0"
+  description: "Sistema Inteligente de Administración y Manejo de Expedientes en documentos diplomáticos"
+  environment: "development"  # development, staging, production
+  debug_mode: true
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# Configuraci�n del orchestrator principal
+orchestrator:
+  # Configuraci�n b�sica
+  max_concurrent_workflows: 10
+  task_timeout_seconds: 300
+  heartbeat_interval_seconds: 30
+  shutdown_timeout_seconds: 60
+
+  # Configuraci�n de m�tricas
+  metrics:
+    enabled: true
+    collection_interval_seconds: 60
+    retention_days: 30
+    export_format: "json"
+
+  # Configuraci�n de persistencia
+  persistence:
+    enabled: true
+    backup_interval_minutes: 30
+    max_backup_files: 10
+    data_directory: "./data"
+
+# Configuraci�n del Task Dispatcher
+task_dispatcher:
+  # Estrategia de distribuci�n
+  default_strategy: "least_loaded"  # round_robin, least_loaded, priority_based, performance_weighted
+  batch_size: 10
+  max_retries: 3
+  retry_delay_seconds: 5.0
+
+  # Configuraci�n de cola
+  queue:
+    max_size: 1000
+    priority_levels: 10
+    cleanup_interval_seconds: 300
+
+  # Monitoreo de agentes
+  agent_monitoring:
+    health_check_interval_seconds: 60
+    timeout_threshold_minutes: 5
+    inactive_threshold_minutes: 10
+
+# Configuraci�n del Result Aggregator
+result_aggregator:
+  # Estrategia de agregaci�n por defecto
+  default_strategy: "merge"  # merge, consensus, best_score, weighted_average
+  min_confidence_threshold: 0.6
+  max_result_age_hours: 24
+
+  # Limpieza autom�tica
+  auto_cleanup:
+    enabled: true
+    interval_hours: 1
+    max_results: 10000
+
+  # Exportaci�n
+  export:
+    default_format: "json"
+    include_metadata: true
+    compress_output: false
+
+# ============================================================================
+# CONFIGURACIÓN DE AGENTES ESPECIALIZADOS
+# ============================================================================
+
+agents:
+  # L�mites generales
+  max_concurrent_tasks_per_agent: 3
+  default_timeout_seconds: 180
+  heartbeat_interval_seconds: 30
+
+  analyst:
+    name: "Requirements Analyzer Agent"
+    specialization: "diplomatic_documents"
+    description: "Analiza y procesa documentos diplomáticos específicos"
+    domain_knowledge:
+      - "hojas_remision_oga"
+      - "hojas_remision_pco"
+      - "hojas_remision_pru"
+      - "guias_valija_entrada_ordinaria"
+      - "guias_valija_entrada_extraordinaria"
+      - "guias_valija_salida_ordinaria"
+      - "guias_valija_salida_extraordinaria"
+      - "notas_diplomaticas"
+      - "despachos_diplomaticos"
+      - "clasificacion_seguridad_diplomatica"
+      - "azure_form_recognizer_integration"
+      - "workflow_approval_processes"
+      - "diplomatic_protocol_compliance"
+
+    capabilities:
+      - "document_classification"
+      - "data_extraction"
+      - "security_level_assignment"
+      - "workflow_routing"
+      - "compliance_validation"
+
+    models:
+      classification: "azure_custom_diplomatic_classifier"
+      extraction: "azure_form_recognizer_diplomatic"
+      confidence_threshold: 0.85
+
+    languages:
+      primary: "spanish"
+      supported: ["spanish", "english", "french", "portuguese"]
+
+  azure_specialist:
+    name: "Azure Cloud Specialist Agent"
+    description: "Especialista en servicios Azure para infraestructura diplomática"
+    services:
+      - "form_recognizer"
+      - "blob_storage"
+      - "key_vault"
+      - "cognitive_search"
+      - "cognitive_services"
+      - "application_insights"
+      - "log_analytics"
+
+    form_recognizer:
+      custom_models:
+        hoja_oga: "siame-hoja-oga-v1"
+        hoja_pco: "siame-hoja-pco-v1"
+        hoja_pru: "siame-hoja-pru-v1"
+        guia_entrada_ord: "siame-guia-entrada-ordinaria-v1"
+        guia_entrada_ext: "siame-guia-entrada-extraordinaria-v1"
+        guia_salida_ord: "siame-guia-salida-ordinaria-v1"
+        guia_salida_ext: "siame-guia-salida-extraordinaria-v1"
+        nota_diplomatica: "siame-nota-diplomatica-v1"
+
+      confidence_threshold: 0.80
+      supported_formats: ["pdf", "png", "jpg", "tiff", "bmp"]
+      max_file_size_mb: 20
+
+    blob_storage:
+      containers:
+        public_documents: "public-documents"
+        restricted_documents: "restricted-documents"
+        confidential_documents: "confidential-documents"
+        secret_documents: "secret-documents"
+        top_secret_documents: "top-secret-documents"
+        training_data: "training-data"
+        processed_documents: "processed-documents"
+        audit_logs: "audit-logs"
+        backups: "backups"
+
+      security:
+        encryption_at_rest: true
+        encryption_in_transit: true
+        soft_delete_enabled: true
+        soft_delete_retention_days: 30
+        versioning_enabled: true
+        immutable_storage: true  # Para documentos clasificados
+
+    key_vault:
+      secrets:
+        - "siame-database-connection"
+        - "siame-jwt-secret"
+        - "siame-encryption-key"
+        - "siame-form-recognizer-key"
+        - "siame-storage-account-key"
+        - "siame-nextauth-secret"
+        - "siame-azure-client-secret"
+
+      access_policies:
+        admin_access: ["get", "list", "set", "delete", "backup", "restore"]
+        app_access: ["get", "list"]
+        readonly_access: ["get", "list"]
+
+  database_specialist:
+    name: "Database Specialist Agent"
+    description: "Especialista en base de datos PostgreSQL con seguridad diplomática"
+    database: "postgresql"
+    orm: "prisma"
+
+    features:
+      - "row_level_security"
+      - "audit_logging"
+      - "multilevel_authentication"
+      - "data_encryption"
+      - "backup_automation"
+      - "performance_monitoring"
+      - "diplomatic_workflow_support"
+
+    security:
+      row_level_security: true
+      audit_triggers: true
+      encryption_at_rest: true
+      ssl_required: true
+      max_connections: 100
+      connection_timeout: 30
+
+    classifications:
+      - "PUBLICO"
+      - "RESTRINGIDO"
+      - "CONFIDENCIAL"
+      - "SECRETO"
+      - "ALTO_SECRETO"
+
+    roles:
+      diplomatic:
+        - "EMBAJADOR"
+        - "MINISTRO_CONSEJERO"
+        - "CONSEJERO"
+        - "PRIMER_SECRETARIO"
+        - "SEGUNDO_SECRETARIO"
+        - "TERCER_SECRETARIO"
+        - "AGREGADO"
+        - "FUNCIONARIO_ADMINISTRATIVO"
+        - "CONSULTOR_EXTERNO"
+        - "INVITADO"
+
+    backup:
+      frequency: "daily"
+      retention_days: 30
+      compression: true
+      encryption: true
+
+  nextjs_developer:
+    name: "Next.js Developer Agent"
+    description: "Desarrollador especializado en frontend diplomático"
+    framework: "nextjs"
+    version: "14.x"
+
+    features:
+      - "typescript_support"
+      - "tailwind_css"
+      - "authentication_integration"
+      - "document_viewer"
+      - "classification_ui"
+      - "responsive_design"
+      - "accessibility_compliance"
+      - "multilingual_support"
+
+    components:
+      - "diplomatic_document_viewer"
+      - "classification_badge"
+      - "security_clearance_indicator"
+      - "document_upload_wizard"
+      - "audit_trail_viewer"
+      - "user_management_dashboard"
+      - "embassy_selector"
+      - "workflow_status_tracker"
+
+  # Configuraci�n espec�fica por tipo de agente original
+  document_classifier:
+    enabled: true
+    min_confidence_threshold: 0.4
+    max_alternatives: 3
+    supported_formats: ["txt", "pdf", "doc", "docx"]
+    classification_timeout_seconds: 60
+
+    # Patrones de clasificaci�n
+    enable_pattern_matching: true
+    enable_keyword_analysis: true
+    enable_structural_analysis: true
+
+  legal_analyzer:
+    enabled: true
+    analysis_depth: "comprehensive"  # basic, standard, comprehensive
+    include_compliance_check: true
+    legal_database_timeout_seconds: 120
+
+  translation_specialist:
+    enabled: true
+    supported_languages: ["es", "en", "fr", "pt"]
+    translation_quality: "high"  # basic, standard, high
+    preserve_formatting: true
+
+  compliance_checker:
+    enabled: true
+    strict_mode: false
+    check_international_law: true
+    check_bilateral_agreements: true
+    regulatory_timeout_seconds: 90
+
+# ============================================================================
+# STACK TECNOLÓGICO
+# ============================================================================
+
+technology_stack:
+  frontend:
+    framework: "nextjs"
+    version: "14.x"
+    language: "typescript"
+    styling: "tailwindcss"
+    ui_library: "shadcn/ui"
+    state_management: "zustand"
+    forms: "react-hook-form"
+    validation: "zod"
+
+  backend:
+    runtime: "nextjs_api"
+    language: "typescript"
+    api_type: "rest"
+    authentication: "nextauth"
+    authorization: "rbac"
+
+  database:
+    engine: "postgresql"
+    version: "15.x"
+    orm: "prisma"
+    connection_pooling: "pgbouncer"
+    migrations: "prisma_migrate"
+
+  cloud:
+    provider: "azure"
+    services:
+      compute: "app_service"
+      storage: "blob_storage"
+      database: "azure_database_postgresql"
+      ai: "cognitive_services"
+      security: "key_vault"
+      monitoring: "application_insights"
+
+  authentication:
+    provider: "nextauth"
+    strategies:
+      - "credentials"
+      - "azure_ad"
+      - "oauth2"
+    mfa: "enabled"
+    session_timeout: 3600  # 1 hora
+
+  security:
+    encryption:
+      at_rest: "AES-256"
+      in_transit: "TLS-1.3"
+      key_management: "azure_key_vault"
+
+    compliance:
+      gdpr: true
+      ens_alto: true
+      iso_27001: true
+
+# ============================================================================
+# CONFIGURACIÓN DE DOCUMENTOS DIPLOMÁTICOS
+# ============================================================================
+
+diplomatic_documents:
+  types:
+    hojas_remision:
+      oga:
+        display_name: "Hoja de Remisión OGA"
+        description: "Hoja de remisión para Oficina de Gestión Administrativa"
+        fields:
+          - "numero_remision"
+          - "fecha"
+          - "origen"
+          - "destino"
+          - "clasificacion"
+          - "asunto"
+          - "funcionario_remitente"
+        validation_rules:
+          numero_remision: "^HR-OGA-\\d{4}-\\d{6}$"
+          fecha: "required|date"
+          clasificacion: "required|in:PUBLICO,RESTRINGIDO,CONFIDENCIAL,SECRETO,ALTO_SECRETO"
+
+      pco:
+        display_name: "Hoja de Remisión PCO"
+        description: "Hoja de remisión para Protocolo y Ceremonial"
+        fields:
+          - "numero_remision"
+          - "fecha"
+          - "evento_protocolo"
+          - "nivel_ceremonial"
+          - "invitados"
+          - "clasificacion"
+        validation_rules:
+          numero_remision: "^HR-PCO-\\d{4}-\\d{6}$"
+          nivel_ceremonial: "required|in:ALTO,MEDIO,BAJO"
+
+      pru:
+        display_name: "Hoja de Remisión PRU"
+        description: "Hoja de remisión para Prensa"
+        fields:
+          - "numero_remision"
+          - "fecha"
+          - "medio_comunicacion"
+          - "tipo_comunicado"
+          - "embargo_fecha"
+          - "clasificacion"
+        validation_rules:
+          numero_remision: "^HR-PRU-\\d{4}-\\d{6}$"
+          tipo_comunicado: "required|in:NOTA_PRENSA,COMUNICADO,DECLARACION"
+
+    guias_valija:
+      entrada_ordinaria:
+        display_name: "Guía de Valija Entrada Ordinaria"
+        description: "Guía para valija diplomática de entrada ordinaria"
+        fields:
+          - "numero_guia"
+          - "fecha_recepcion"
+          - "embajada_origen"
+          - "peso_kg"
+          - "numero_piezas"
+          - "contenido_general"
+        validation_rules:
+          numero_guia: "^GV-EO-\\d{4}-\\d{6}$"
+          peso_kg: "required|numeric|min:0|max:50"
+
+      salida_extraordinaria:
+        display_name: "Guía de Valija Salida Extraordinaria"
+        description: "Guía para valija diplomática de salida extraordinaria"
+        fields:
+          - "numero_guia"
+          - "fecha_envio"
+          - "embajada_destino"
+          - "motivo_extraordinario"
+          - "autorizacion_nivel"
+          - "urgencia"
+        validation_rules:
+          numero_guia: "^GV-SE-\\d{4}-\\d{6}$"
+          urgencia: "required|in:BAJA,MEDIA,ALTA,CRITICA"
+          autorizacion_nivel: "required|in:CONSEJERO,MINISTRO_CONSEJERO,EMBAJADOR"
+
+# Configuraci�n de documentos diplom�ticos
+document_processing:
+  # Tipos de documentos soportados
+  supported_types:
+    - "treaty"
+    - "agreement"
+    - "protocol"
+    - "memorandum"
+    - "diplomatic_note"
+    - "consular_document"
+    - "trade_agreement"
+    - "security_pact"
+    - "multilateral_treaty"
+    - "bilateral_agreement"
+
+  # Configuraci�n de workflows
+  workflows:
+    treaty:
+      required_agents: ["document_classifier", "legal_analyzer", "compliance_checker"]
+      optional_agents: ["translation_specialist"]
+      parallel_processing: true
+      quality_threshold: 0.8
+
+    trade_agreement:
+      required_agents: ["document_classifier", "legal_analyzer", "compliance_checker"]
+      optional_agents: ["translation_specialist"]
+      parallel_processing: true
+      quality_threshold: 0.75
+
+    diplomatic_note:
+      required_agents: ["document_classifier", "legal_analyzer"]
+      optional_agents: ["translation_specialist"]
+      parallel_processing: false
+      quality_threshold: 0.7
+
+    default:
+      required_agents: ["document_classifier", "legal_analyzer"]
+      optional_agents: []
+      parallel_processing: false
+      quality_threshold: 0.6
+
+# Configuraci�n de seguridad
+security:
+  # Autenticaci�n
+  authentication:
+    enabled: true
+    method: "token"  # token, oauth, ldap
+    token_expiry_hours: 24
+
+  # Autorizaci�n
+  authorization:
+    enabled: true
+    role_based: true
+    default_role: "viewer"
+
+  # Auditor�a
+  audit:
+    enabled: true
+    log_all_operations: true
+    sensitive_data_masking: true
+    retention_days: 90
+
+# Configuraci�n de almacenamiento
+storage:
+  # Base de datos principal
+  database:
+    type: "sqlite"  # sqlite, postgresql, mysql
+    connection_string: "sqlite:///siame_2026v3.db"
+    connection_pool_size: 5
+    connection_timeout_seconds: 30
+
+  # Almacenamiento de archivos
+  file_storage:
+    type: "local"  # local, s3, gcs, azure
+    base_path: "./storage"
+    max_file_size_mb: 100
+    allowed_extensions: [".txt", ".pdf", ".doc", ".docx"]
+
+  # Cache
+  cache:
+    enabled: true
+    type: "memory"  # memory, redis, memcached
+    max_size_mb: 512
+    ttl_seconds: 3600
+
+# Configuraci�n de red y comunicaci�n
+network:
+  # Servidor web
+  web_server:
+    host: "localhost"
+    port: 8080
+    max_connections: 100
+    request_timeout_seconds: 30
+
+  # API REST
+  api:
+    version: "v1"
+    base_path: "/api/v1"
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 60
+
+  # WebSocket
+  websocket:
+    enabled: true
+    port: 8081
+    ping_interval_seconds: 30
+
+  # Comunicaci�n entre agentes
+  inter_agent:
+    protocol: "http"  # http, grpc, rabbitmq
+    timeout_seconds: 10
+    retry_attempts: 3
+
+# Configuraci�n de monitoreo y logging
+monitoring:
+  # Logging
+  logging:
+    level: "INFO"
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file_enabled: true
+    file_path: "./logs/siame.log"
+    file_max_size_mb: 100
+    file_backup_count: 5
+    console_enabled: true
+
+  # M�tricas
+  metrics:
+    enabled: true
+    collection_interval_seconds: 60
+    prometheus_enabled: false
+    prometheus_port: 9090
+
+  # Alertas
+  alerts:
+    enabled: true
+    email_notifications: false
+    webhook_notifications: false
+    critical_error_threshold: 5
+
+  # Health checks
+  health_checks:
+    enabled: true
+    interval_seconds: 30
+    endpoint: "/health"
+
+# Configuraci�n de desarrollo y testing
+development:
+  # Modo de desarrollo
+  debug_mode: true
+  reload_on_change: true
+  verbose_logging: true
+
+  # Testing
+  testing:
+    enabled: true
+    test_data_path: "./test_data"
+    mock_external_services: true
+
+  # Profiling
+  profiling:
+    enabled: false
+    output_path: "./profiles"
+    include_memory: true
+
+# Configuraci�n de recursos del sistema
+resources:
+  # L�mites de memoria
+  memory:
+    max_heap_size_mb: 2048
+    gc_threshold_mb: 1024
+
+  # CPU
+  cpu:
+    max_threads: 10
+    thread_pool_size: 5
+
+  # Timeouts generales
+  timeouts:
+    default_operation_seconds: 30
+    long_operation_seconds: 300
+    critical_operation_seconds: 600
+
+# Configuraci�n de integraci�n
+integrations:
+  # Servicios externos
+  external_services:
+    legal_database:
+      enabled: false
+      url: "https://api.legal-db.example.com"
+      api_key: "${LEGAL_DB_API_KEY}"
+      timeout_seconds: 30
+
+    translation_service:
+      enabled: false
+      provider: "google"  # google, azure, aws
+      api_key: "${TRANSLATION_API_KEY}"
+
+    document_ocr:
+      enabled: false
+      provider: "tesseract"
+      language_models: ["eng", "spa", "fra"]
+
+  # Webhooks
+  webhooks:
+    enabled: false
+    endpoints:
+      workflow_completed: "${WEBHOOK_WORKFLOW_COMPLETED}"
+      error_occurred: "${WEBHOOK_ERROR_OCCURRED}"
+
+# Variables de entorno y secretos
+environment_variables:
+  # Variables requeridas
+  required:
+    - "SIAME_SECRET_KEY"
+
+  # Variables opcionales
+  optional:
+    - "LEGAL_DB_API_KEY"
+    - "TRANSLATION_API_KEY"
+    - "WEBHOOK_WORKFLOW_COMPLETED"
+    - "WEBHOOK_ERROR_OCCURRED"
+
+# Configuraci�n de backup y recuperaci�n
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Cron expression for daily at 2 AM
+  retention_days: 30
+  compression: true
+  include_logs: false
+  storage_location: "./backups"
+
+  # Configuraci�n de recuperaci�n
+  recovery:
+    auto_recovery: true
+    max_recovery_attempts: 3
+    recovery_timeout_minutes: 10

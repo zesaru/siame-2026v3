@@ -1,0 +1,81 @@
+{
+  "recommendations": [
+    // Python Development
+    "ms-python.python",
+    "ms-python.black-formatter",
+    "ms-python.flake8",
+    "ms-python.pylint",
+
+    // TypeScript/JavaScript Development
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+
+    // Next.js and React
+    "burkeholland.simple-react-snippets",
+    "dsznajder.es7-react-js-snippets",
+    "bradlc.vscode-tailwindcss",
+
+    // Database and Prisma
+    "Prisma.prisma",
+    "ms-mssql.mssql",
+    "ckolkman.vscode-postgres",
+
+    // Docker and Kubernetes
+    "ms-azuretools.vscode-docker",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+
+    // YAML and Configuration
+    "redhat.vscode-yaml",
+    "DotJoshJohnson.xml",
+    "ms-vscode.makefile-tools",
+
+    // Git and Version Control
+    "eamodio.gitlens",
+    "GitHub.vscode-pull-request-github",
+    "GitHub.copilot",
+
+    // Azure Development
+    "ms-vscode.vscode-node-azure-pack",
+    "ms-azuretools.vscode-azureresourcegroups",
+    "ms-azuretools.vscode-azurestorage",
+
+    // Testing
+    "ms-playwright.playwright",
+    "hbenl.vscode-test-explorer",
+    "kavod-io.vscode-jest-test-adapter",
+
+    // Code Quality
+    "SonarSource.sonarlint-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens",
+
+    // Productivity
+    "aaron-bond.better-comments",
+    "alefragnani.Bookmarks",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+
+    // Documentation
+    "yzhang.markdown-all-in-one",
+    "DavidAnson.vscode-markdownlint",
+    "shd101wyy.markdown-preview-enhanced",
+
+    // Security
+    "gitlab.gitlab-workflow",
+    "ms-dotnettools.csharp",
+
+    // API Development
+    "humao.rest-client",
+    "42Crunch.vscode-openapi",
+
+    // Diplomatic and Government specific
+    "ms-vscode.theme-tomorrowkit",
+    "PKief.material-icon-theme"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-json",
+    "hookyqr.beautify"
+  ]
+}

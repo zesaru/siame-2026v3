@@ -1,0 +1,293 @@
+# SIAME 2026v3 - Configuración del Orquestador
+# Sistema Inteligente de Administración y Manejo de Expedientes
+
+# ================================
+# CONFIGURACIÓN GENERAL
+# ================================
+name: "SIAME Orchestrator"
+version: "3.0.0"
+description: "Orquestador principal del sistema multi-agente diplomático"
+
+# ================================
+# CONFIGURACIÓN DEL SERVIDOR
+# ================================
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  timeout: 30
+  keep_alive: 2
+
+# ================================
+# CONFIGURACIÓN DE COORDINACIÓN
+# ================================
+coordination:
+  interval_seconds: 5
+  heartbeat_timeout: 30
+  task_cleanup_hours: 24
+  max_concurrent_tasks: 100
+  task_retry_attempts: 3
+  task_timeout_minutes: 30
+
+# ================================
+# CONFIGURACIÓN DE AGENTES
+# ================================
+agents:
+  # Agente Procesador de Documentos
+  document_processor:
+    enabled: true
+    priority: 1
+    max_concurrent_tasks: 5
+    timeout_minutes: 15
+    retry_attempts: 3
+    capabilities:
+      - ocr
+      - classification
+      - extraction
+      - validation
+
+  # Agente Gestor de Base de Datos
+  database_manager:
+    enabled: true
+    priority: 2
+    max_concurrent_tasks: 10
+    timeout_minutes: 5
+    retry_attempts: 2
+    capabilities:
+      - crud
+      - migrations
+      - rls
+      - audit
+
+  # Agente Especialista Azure
+  azure_specialist:
+    enabled: true
+    priority: 1
+    max_concurrent_tasks: 8
+    timeout_minutes: 20
+    retry_attempts: 3
+    capabilities:
+      - form_recognizer
+      - blob_storage
+      - key_vault
+      - cognitive_services
+
+  # Agente Guardián de Seguridad
+  security_guardian:
+    enabled: true
+    priority: 3
+    max_concurrent_tasks: 3
+    timeout_minutes: 10
+    retry_attempts: 1
+    capabilities:
+      - access_control
+      - encryption
+      - audit
+      - threat_detection
+
+  # Agente Gestor de Workflows
+  workflow_manager:
+    enabled: true
+    priority: 2
+    max_concurrent_tasks: 15
+    timeout_minutes: 45
+    retry_attempts: 2
+    capabilities:
+      - diplomatic_flows
+      - approvals
+      - status_tracking
+
+  # Agente Hub de Comunicaciones
+  communication_hub:
+    enabled: true
+    priority: 2
+    max_concurrent_tasks: 20
+    timeout_minutes: 5
+    retry_attempts: 3
+    capabilities:
+      - email
+      - notifications
+      - diplomatic_protocol
+
+  # Agente Control de Calidad
+  quality_assurance:
+    enabled: true
+    priority: 3
+    max_concurrent_tasks: 2
+    timeout_minutes: 60
+    retry_attempts: 1
+    capabilities:
+      - testing
+      - compliance
+      - performance_monitoring
+
+# ================================
+# CONFIGURACIÓN DE TAREAS
+# ================================
+task_types:
+  document_processing:
+    default_agent: "document_processor"
+    fallback_agents: ["azure_specialist"]
+    priority: 1
+    timeout_minutes: 15
+
+  database_operation:
+    default_agent: "database_manager"
+    fallback_agents: []
+    priority: 2
+    timeout_minutes: 5
+
+  security_check:
+    default_agent: "security_guardian"
+    fallback_agents: []
+    priority: 3
+    timeout_minutes: 10
+
+  workflow_execution:
+    default_agent: "workflow_manager"
+    fallback_agents: []
+    priority: 2
+    timeout_minutes: 45
+
+  notification:
+    default_agent: "communication_hub"
+    fallback_agents: []
+    priority: 2
+    timeout_minutes: 5
+
+  quality_check:
+    default_agent: "quality_assurance"
+    fallback_agents: []
+    priority: 3
+    timeout_minutes: 60
+
+# ================================
+# CONFIGURACIÓN DE MESSAGING
+# ================================
+messaging:
+  broker_type: "redis"
+  connection_pool_size: 10
+  message_ttl_seconds: 3600
+  max_retries: 3
+  retry_delay_seconds: 5
+
+# Canales de comunicación
+channels:
+  agent_heartbeat: "agent.heartbeat"
+  task_assignment: "task.assignment"
+  task_completion: "task.completion"
+  task_failure: "task.failure"
+  system_events: "system.events"
+
+# ================================
+# CONFIGURACIÓN DE MONITOREO
+# ================================
+monitoring:
+  enabled: true
+  metrics_port: 9001
+  health_check_interval: 30
+
+  # Métricas a capturar
+  metrics:
+    - agent_status
+    - task_queue_size
+    - task_completion_rate
+    - task_failure_rate
+    - response_times
+    - memory_usage
+    - cpu_usage
+
+# ================================
+# CONFIGURACIÓN DE LOGGING
+# ================================
+logging:
+  level: "INFO"
+  format: "json"
+  output: "stdout"
+
+  # Logs adicionales
+  access_logs: true
+  error_logs: true
+  debug_logs: false
+
+# ================================
+# CONFIGURACIÓN DE SEGURIDAD
+# ================================
+security:
+  enable_authentication: true
+  enable_authorization: true
+  enable_audit_logging: true
+
+  # JWT configuración
+  jwt:
+    algorithm: "HS256"
+    expiration_hours: 8
+    refresh_expiration_days: 7
+
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+    burst_size: 10
+
+# ================================
+# CONFIGURACIÓN DE DIPLOMATIC
+# ================================
+diplomatic:
+  # Clasificaciones de seguridad soportadas
+  security_classifications:
+    - PUBLICO
+    - RESTRINGIDO
+    - CONFIDENCIAL
+    - SECRETO
+    - ALTO_SECRETO
+
+  # Roles diplomáticos soportados
+  diplomatic_roles:
+    - EMBAJADOR
+    - MINISTRO_CONSEJERO
+    - CONSEJERO
+    - PRIMER_SECRETARIO
+    - SEGUNDO_SECRETARIO
+    - TERCER_SECRETARIO
+    - AGREGADO
+    - FUNCIONARIO_ADMINISTRATIVO
+    - CONSULTOR_EXTERNO
+    - INVITADO
+
+  # Tipos de documentos soportados
+  document_types:
+    - HOJA_REMISION_OGA
+    - HOJA_REMISION_PCO
+    - HOJA_REMISION_PRU
+    - GUIA_VALIJA_ENTRADA_ORDINARIA
+    - GUIA_VALIJA_ENTRADA_EXTRAORDINARIA
+    - GUIA_VALIJA_SALIDA_ORDINARIA
+    - GUIA_VALIJA_SALIDA_EXTRAORDINARIA
+    - NOTA_DIPLOMATICA
+    - DESPACHO_TELEGRAFICO
+    - MEMORANDUM_INTERNO
+    - MEMORANDUM_EXTERNO
+
+# ================================
+# CONFIGURACIÓN DE DESARROLLO
+# ================================
+development:
+  hot_reload: true
+  debug_mode: true
+  mock_agents: false
+  show_stack_traces: true
+
+# ================================
+# CONFIGURACIÓN DE PRODUCCIÓN
+# ================================
+production:
+  cluster_mode: true
+  workers: 4
+  max_memory_mb: 2048
+  graceful_shutdown_timeout: 30
+
+  # Optimizaciones
+  enable_compression: true
+  enable_caching: true
+  cache_ttl_seconds: 3600

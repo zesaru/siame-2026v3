@@ -1,0 +1,406 @@
+# SIAME 2026v3 - Configuración de Roles Diplomáticos
+# Sistema Inteligente de Administración y Manejo de Expedientes
+# Ministerio de Asuntos Exteriores, Unión Europea y Cooperación
+
+# ================================
+# JERARQUÍA DIPLOMÁTICA
+# ================================
+# Definición de los 10 niveles de roles diplomáticos
+# con sus permisos y niveles de acceso correspondientes
+
+roles:
+  # ================================
+  # NIVEL 1 - MÁXIMO NIVEL
+  # ================================
+  EMBAJADOR:
+    level: 1
+    priority: 10
+    description: "Representante máximo del Estado en el extranjero"
+    max_security_clearance: "ALTO_SECRETO"
+    permissions:
+      documents:
+        - create_all
+        - read_all
+        - update_all
+        - delete_all
+        - approve_all
+        - classify_all
+      workflows:
+        - create_all
+        - manage_all
+        - override_all
+      administration:
+        - manage_users
+        - manage_roles
+        - system_administration
+        - audit_access
+      diplomatic:
+        - sign_treaties
+        - represent_state
+        - diplomatic_immunity
+        - protocol_precedence
+    restrictions: []
+    can_delegate_to:
+      - MINISTRO_CONSEJERO
+      - CONSEJERO
+    reporting_to: null
+
+  # ================================
+  # NIVEL 2 - SEGUNDO NIVEL
+  # ================================
+  MINISTRO_CONSEJERO:
+    level: 2
+    priority: 9
+    description: "Segundo al mando en la misión diplomática"
+    max_security_clearance: "ALTO_SECRETO"
+    permissions:
+      documents:
+        - create_all
+        - read_all
+        - update_all
+        - delete_classified
+        - approve_confidential_and_below
+        - classify_up_to_secreto
+      workflows:
+        - create_all
+        - manage_department
+        - approve_workflows
+      administration:
+        - manage_department_users
+        - view_audit_logs
+        - department_administration
+      diplomatic:
+        - deputize_ambassador
+        - represent_in_absence
+        - protocol_authority
+    restrictions:
+      - cannot_delete_alto_secreto_without_approval
+    can_delegate_to:
+      - CONSEJERO
+      - PRIMER_SECRETARIO
+    reporting_to: EMBAJADOR
+
+  # ================================
+  # NIVEL 3 - TERCER NIVEL
+  # ================================
+  CONSEJERO:
+    level: 3
+    priority: 8
+    description: "Jefe de sección o departamento especializado"
+    max_security_clearance: "SECRETO"
+    permissions:
+      documents:
+        - create_department
+        - read_up_to_secreto
+        - update_department
+        - delete_up_to_confidencial
+        - approve_up_to_confidencial
+        - classify_up_to_confidencial
+      workflows:
+        - create_department
+        - manage_section
+        - approve_section_workflows
+      administration:
+        - manage_section_users
+        - view_department_audit
+      diplomatic:
+        - section_authority
+        - specialized_negotiations
+        - departmental_representation
+    restrictions:
+      - cannot_access_alto_secreto
+      - limited_to_department_scope
+    can_delegate_to:
+      - PRIMER_SECRETARIO
+      - SEGUNDO_SECRETARIO
+    reporting_to: MINISTRO_CONSEJERO
+
+  # ================================
+  # NIVEL 4 - CUARTO NIVEL
+  # ================================
+  PRIMER_SECRETARIO:
+    level: 4
+    priority: 7
+    description: "Funcionario senior con responsabilidades específicas"
+    max_security_clearance: "CONFIDENCIAL"
+    permissions:
+      documents:
+        - create_own
+        - read_up_to_confidencial
+        - update_own
+        - delete_own_drafts
+        - review_documents
+        - classify_up_to_restringido
+      workflows:
+        - create_standard
+        - participate_workflows
+        - review_workflows
+      administration:
+        - view_own_audit
+        - limited_user_management
+      diplomatic:
+        - handle_routine_matters
+        - coordinate_activities
+        - draft_communications
+    restrictions:
+      - cannot_access_secreto_or_above
+      - limited_to_assigned_areas
+    can_delegate_to:
+      - SEGUNDO_SECRETARIO
+      - TERCER_SECRETARIO
+    reporting_to: CONSEJERO
+
+  # ================================
+  # NIVEL 5 - QUINTO NIVEL
+  # ================================
+  SEGUNDO_SECRETARIO:
+    level: 5
+    priority: 6
+    description: "Funcionario con responsabilidades operativas"
+    max_security_clearance: "CONFIDENCIAL"
+    permissions:
+      documents:
+        - create_standard
+        - read_up_to_confidencial
+        - update_assigned
+        - delete_own_drafts
+        - process_documents
+      workflows:
+        - participate_assigned
+        - execute_workflows
+      administration:
+        - view_own_activity
+      diplomatic:
+        - process_routine_matters
+        - assist_senior_staff
+        - maintain_records
+    restrictions:
+      - cannot_access_secreto_or_above
+      - limited_document_creation
+    can_delegate_to:
+      - TERCER_SECRETARIO
+    reporting_to: PRIMER_SECRETARIO
+
+  # ================================
+  # NIVEL 6 - SEXTO NIVEL
+  # ================================
+  TERCER_SECRETARIO:
+    level: 6
+    priority: 5
+    description: "Funcionario junior con tareas específicas"
+    max_security_clearance: "RESTRINGIDO"
+    permissions:
+      documents:
+        - create_basic
+        - read_up_to_restringido
+        - update_assigned
+        - process_basic_documents
+      workflows:
+        - participate_basic
+        - execute_assigned_tasks
+      administration:
+        - view_own_activity
+      diplomatic:
+        - handle_basic_procedures
+        - assist_operations
+        - data_entry
+    restrictions:
+      - cannot_access_confidencial_or_above
+      - very_limited_scope
+    can_delegate_to: []
+    reporting_to: SEGUNDO_SECRETARIO
+
+  # ================================
+  # NIVEL 7 - SÉPTIMO NIVEL
+  # ================================
+  AGREGADO:
+    level: 7
+    priority: 4
+    description: "Especialista en área específica (militar, comercial, etc.)"
+    max_security_clearance: "CONFIDENCIAL"
+    permissions:
+      documents:
+        - create_specialized
+        - read_specialized_up_to_confidencial
+        - update_specialized
+        - expert_review
+      workflows:
+        - specialized_workflows
+        - expert_consultation
+      administration:
+        - specialized_reporting
+      diplomatic:
+        - specialized_negotiations
+        - expert_advice
+        - technical_liaison
+    restrictions:
+      - limited_to_specialization
+      - cannot_access_general_alto_secreto
+    can_delegate_to: []
+    reporting_to: CONSEJERO
+
+  # ================================
+  # NIVEL 8 - OCTAVO NIVEL
+  # ================================
+  FUNCIONARIO_ADMINISTRATIVO:
+    level: 8
+    priority: 3
+    description: "Personal administrativo y de soporte"
+    max_security_clearance: "RESTRINGIDO"
+    permissions:
+      documents:
+        - read_public_and_restricted
+        - process_administrative
+        - maintain_records
+      workflows:
+        - administrative_tasks
+        - support_workflows
+      administration:
+        - administrative_functions
+        - record_keeping
+      diplomatic:
+        - administrative_support
+        - logistics_coordination
+        - protocol_assistance
+    restrictions:
+      - no_access_confidencial_or_above
+      - administrative_scope_only
+    can_delegate_to: []
+    reporting_to: TERCER_SECRETARIO
+
+  # ================================
+  # NIVEL 9 - NOVENO NIVEL
+  # ================================
+  CONSULTOR_EXTERNO:
+    level: 9
+    priority: 2
+    description: "Consultor externo con acceso temporal limitado"
+    max_security_clearance: "RESTRINGIDO"
+    permissions:
+      documents:
+        - read_assigned_up_to_restringido
+        - create_reports
+        - consultation_access
+      workflows:
+        - consultation_workflows
+        - provide_expertise
+      administration:
+        - limited_reporting
+      diplomatic:
+        - expert_consultation
+        - specialized_advice
+        - temporary_assistance
+    restrictions:
+      - time_limited_access
+      - project_specific_scope
+      - no_administrative_access
+      - requires_sponsorship
+    can_delegate_to: []
+    reporting_to: varies_by_assignment
+    special_conditions:
+      - requires_security_clearance_verification
+      - limited_duration_access
+      - requires_sponsor_approval
+      - audit_all_activities
+
+  # ================================
+  # NIVEL 10 - DÉCIMO NIVEL
+  # ================================
+  INVITADO:
+    level: 10
+    priority: 1
+    description: "Acceso muy limitado solo a documentos públicos"
+    max_security_clearance: "PUBLICO"
+    permissions:
+      documents:
+        - read_public_only
+        - view_public_announcements
+      workflows:
+        - view_public_processes
+      administration: []
+      diplomatic:
+        - view_public_information
+        - attend_public_events
+    restrictions:
+      - public_access_only
+      - no_internal_documents
+      - no_administrative_access
+      - heavily_audited
+    can_delegate_to: []
+    reporting_to: varies_by_invitation
+    special_conditions:
+      - requires_invitation
+      - supervised_access
+      - limited_duration
+      - comprehensive_audit_trail
+
+# ================================
+# CONFIGURACIÓN DE HERENCIA
+# ================================
+role_inheritance:
+  enabled: true
+  rules:
+    - higher_level_can_access_lower_level_documents
+    - cannot_exceed_security_clearance
+    - delegation_must_be_to_lower_level
+    - inherited_permissions_are_subset
+
+# ================================
+# CONFIGURACIÓN DE EMERGENCIA
+# ================================
+emergency_procedures:
+  temporary_elevation:
+    enabled: true
+    max_duration_hours: 24
+    requires_approval_from:
+      - EMBAJADOR
+      - MINISTRO_CONSEJERO
+    audit_level: maximum
+
+  emergency_access:
+    enabled: true
+    situations:
+      - "crisis_nacional"
+      - "amenaza_seguridad"
+      - "emergencia_diplomatica"
+    temporary_clearance_elevation: true
+    requires_post_emergency_review: true
+
+# ================================
+# CONFIGURACIÓN DE AUDITORÍA
+# ================================
+audit_configuration:
+  by_role:
+    EMBAJADOR:
+      audit_level: standard
+      log_all_actions: true
+    MINISTRO_CONSEJERO:
+      audit_level: standard
+      log_all_actions: true
+    CONSEJERO:
+      audit_level: detailed
+      log_all_actions: true
+    PRIMER_SECRETARIO:
+      audit_level: detailed
+      log_all_actions: true
+    SEGUNDO_SECRETARIO:
+      audit_level: detailed
+      log_all_actions: true
+    TERCER_SECRETARIO:
+      audit_level: comprehensive
+      log_all_actions: true
+    AGREGADO:
+      audit_level: detailed
+      log_all_actions: true
+    FUNCIONARIO_ADMINISTRATIVO:
+      audit_level: comprehensive
+      log_all_actions: true
+    CONSULTOR_EXTERNO:
+      audit_level: maximum
+      log_all_actions: true
+      real_time_monitoring: true
+    INVITADO:
+      audit_level: maximum
+      log_all_actions: true
+      real_time_monitoring: true
+      require_supervisor_approval: true

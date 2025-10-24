@@ -1,0 +1,249 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: siame_postgres
+    environment:
+      POSTGRES_DB: siame_dev
+      POSTGRES_USER: siame_user
+      POSTGRES_PASSWORD: siame_password
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/backend/database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U siame_user -d siame_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - siame_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: siame_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass siame_redis_password
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - siame_network
+
+  # Backend Orchestrator
+  orchestrator:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.backend
+    container_name: siame_orchestrator
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://siame_user:siame_password@postgres:5432/siame_dev
+      - REDIS_URL=redis://:siame_redis_password@redis:6379
+      - ORCHESTRATOR_HOST=0.0.0.0
+      - ORCHESTRATOR_PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src/backend:/app/src/backend
+      - ./shared:/app/shared
+      - ./config:/app/config
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Document Processor Agent
+  agent_document_processor:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.agents
+    container_name: siame_agent_document_processor
+    environment:
+      - AGENT_TYPE=document_processor
+      - ORCHESTRATOR_URL=http://orchestrator:8000
+      - AZURE_FORM_RECOGNIZER_ENDPOINT=${AZURE_FORM_RECOGNIZER_ENDPOINT}
+      - AZURE_FORM_RECOGNIZER_KEY=${AZURE_FORM_RECOGNIZER_KEY}
+    depends_on:
+      - orchestrator
+    volumes:
+      - ./src/backend/agents:/app/agents
+      - ./shared:/app/shared
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Database Manager Agent
+  agent_database_manager:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.agents
+    container_name: siame_agent_database_manager
+    environment:
+      - AGENT_TYPE=database_manager
+      - ORCHESTRATOR_URL=http://orchestrator:8000
+      - DATABASE_URL=postgresql://siame_user:siame_password@postgres:5432/siame_dev
+    depends_on:
+      - orchestrator
+      - postgres
+    volumes:
+      - ./src/backend/agents:/app/agents
+      - ./shared:/app/shared
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Azure Specialist Agent
+  agent_azure_specialist:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.agents
+    container_name: siame_agent_azure_specialist
+    environment:
+      - AGENT_TYPE=azure_specialist
+      - ORCHESTRATOR_URL=http://orchestrator:8000
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - AZURE_KEY_VAULT_URL=${AZURE_KEY_VAULT_URL}
+    depends_on:
+      - orchestrator
+    volumes:
+      - ./src/backend/agents:/app/agents
+      - ./shared:/app/shared
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Security Guardian Agent
+  agent_security_guardian:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.agents
+    container_name: siame_agent_security_guardian
+    environment:
+      - AGENT_TYPE=security_guardian
+      - ORCHESTRATOR_URL=http://orchestrator:8000
+      - SECURITY_LEVEL=ENS_ALTO
+    depends_on:
+      - orchestrator
+    volumes:
+      - ./src/backend/agents:/app/agents
+      - ./shared:/app/shared
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: ../../infrastructure/docker/Dockerfile.frontend
+    container_name: siame_frontend
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - DATABASE_URL=postgresql://siame_user:siame_password@postgres:5432/siame_dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - orchestrator
+      - postgres
+    volumes:
+      - ./src/frontend:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: siame_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d
+      - ./infrastructure/ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - orchestrator
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: siame_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: siame_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=siame_grafana_password
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - siame_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  siame_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

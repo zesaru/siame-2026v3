@@ -1,0 +1,639 @@
+// SIAME 2026v3 - Esquema de Base de Datos
+// Sistema Inteligente de Administración y Manejo de Expedientes
+// Ministerio de Asuntos Exteriores, Unión Europea y Cooperación
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// ENUMS - Tipos de Datos
+// ================================
+
+enum SecurityClassification {
+  PUBLICO
+  RESTRINGIDO
+  CONFIDENCIAL
+  SECRETO
+  ALTO_SECRETO
+}
+
+enum DiplomaticRole {
+  EMBAJADOR
+  MINISTRO_CONSEJERO
+  CONSEJERO
+  PRIMER_SECRETARIO
+  SEGUNDO_SECRETARIO
+  TERCER_SECRETARIO
+  AGREGADO
+  FUNCIONARIO_ADMINISTRATIVO
+  CONSULTOR_EXTERNO
+  INVITADO
+}
+
+enum DocumentType {
+  HOJA_REMISION_OGA
+  HOJA_REMISION_PCO
+  HOJA_REMISION_PRU
+  GUIA_VALIJA_ENTRADA_ORDINARIA
+  GUIA_VALIJA_ENTRADA_EXTRAORDINARIA
+  GUIA_VALIJA_SALIDA_ORDINARIA
+  GUIA_VALIJA_SALIDA_EXTRAORDINARIA
+  NOTA_DIPLOMATICA
+  DESPACHO_TELEGRAFICO
+  MEMORANDUM_INTERNO
+  MEMORANDUM_EXTERNO
+  COMUNICADO_PRENSA
+  INFORME_TECNICO
+  OTRO
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING_REVIEW
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+  DELETED
+}
+
+enum WorkflowStatus {
+  CREATED
+  IN_PROGRESS
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum UnidadRemitente {
+  OGA
+  PCO
+  PRU
+  CON
+  ADM
+}
+
+enum TipoGuia {
+  ENTRADA
+  SALIDA
+}
+
+enum ModalidadValija {
+  ORDINARIA
+  EXTRAORDINARIA
+}
+
+enum EstadoPrecinto {
+  INTACTO
+  ROTO
+  FALTANTE
+}
+
+// ================================
+// MODELOS DE USUARIOS Y SEGURIDAD
+// ================================
+
+model User {
+  id                String                @id @default(cuid())
+  email             String                @unique
+  name              String
+  password          String?
+  avatar            String?
+
+  // Información diplomática
+  diplomaticRole    DiplomaticRole
+  securityClearance SecurityClassification
+  embassy           String?
+  department        String?
+  employeeId        String?               @unique
+
+  // Estado de la cuenta
+  isActive          Boolean               @default(true)
+  isVerified        Boolean               @default(false)
+  lastLoginAt       DateTime?
+
+  // Metadatos
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  // Relaciones
+  accounts          Account[]
+  sessions          Session[]
+
+  // Documentos
+  documentsCreated  Document[]            @relation("DocumentCreator")
+  documentsAssigned Document[]            @relation("DocumentAssignee")
+
+  // Workflows
+  workflowsCreated  Workflow[]            @relation("WorkflowCreator")
+  workflowSteps     WorkflowStep[]
+
+  // Comunicaciones
+  notificationsSent Notification[]        @relation("NotificationSender")
+  notificationsReceived Notification[]    @relation("NotificationReceiver")
+
+  // Auditoría
+  auditLogs         AuditLog[]
+
+  // Documentos diplomáticos
+  hojasRemision     HojaRemision[]
+  guiasValija       GuiaValija[]
+
+  // Autorizaciones
+  authorizationsGranted    DocumentAuthorization[]    @relation("AuthorizationGranter")
+  authorizationsReceived   DocumentAuthorization[]
+
+  // File uploads
+  fileUploads       FileUpload[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ================================
+// MODELOS DE DOCUMENTOS
+// ================================
+
+model Document {
+  id                String                @id @default(cuid())
+
+  // Información básica
+  title             String
+  description       String?
+  type              DocumentType
+  status            DocumentStatus        @default(DRAFT)
+  classification    SecurityClassification
+
+  // Metadatos del documento
+  documentNumber    String?               @unique
+  referenceNumber   String?
+  version           Int                   @default(1)
+
+  // Archivos
+  originalFileName  String?
+  storagePath       String?
+  fileSize          Int?
+  mimeType          String?
+  checksum          String?
+
+  // Procesamiento OCR
+  ocrText           String?               @db.Text
+  ocrConfidence     Float?
+  extractedData     Json?
+
+  // Fechas importantes
+  documentDate      DateTime?
+  expirationDate    DateTime?
+
+  // Relaciones
+  createdById       String
+  assignedToId      String?
+
+  creator           User                  @relation("DocumentCreator", fields: [createdById], references: [id])
+  assignedTo        User?                 @relation("DocumentAssignee", fields: [assignedToId], references: [id])
+
+  // Workflow
+  workflows         DocumentWorkflow[]
+
+  // Versiones
+  parentDocumentId  String?
+  parentDocument    Document?             @relation("DocumentVersions", fields: [parentDocumentId], references: [id])
+  childDocuments    Document[]            @relation("DocumentVersions")
+
+  // Comunicaciones
+  notifications     Notification[]
+
+  // Auditoría
+  auditLogs         AuditLog[]
+
+  // Documentos diplomáticos específicos
+  hojaRemision      HojaRemision?
+  guiaValija        GuiaValija?
+
+  // Autorizaciones
+  authorizations    DocumentAuthorization[]
+
+  // Metadatos
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@map("documents")
+}
+
+// ================================
+// MODELOS DE WORKFLOWS
+// ================================
+
+model Workflow {
+  id            String                @id @default(cuid())
+  name          String
+  description   String?
+  version       Int                   @default(1)
+  status        WorkflowStatus        @default(CREATED)
+
+  // Configuración
+  isActive      Boolean               @default(true)
+  isTemplate    Boolean               @default(false)
+
+  // Relaciones
+  createdById   String
+  creator       User                  @relation("WorkflowCreator", fields: [createdById], references: [id])
+
+  steps         WorkflowStep[]
+  documents     DocumentWorkflow[]
+
+  // Metadatos
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@map("workflows")
+}
+
+model WorkflowStep {
+  id            String                @id @default(cuid())
+  workflowId    String
+  name          String
+  description   String?
+  stepOrder     Int
+
+  // Configuración del paso
+  isRequired    Boolean               @default(true)
+  autoExecute   Boolean               @default(false)
+  timeoutHours  Int?
+
+  // Asignación
+  assignedToId  String?
+
+  // Estado
+  status        WorkflowStatus        @default(CREATED)
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  // Datos del paso
+  inputData     Json?
+  outputData    Json?
+  notes         String?
+
+  // Relaciones
+  workflow      Workflow              @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  assignedTo    User?                 @relation(fields: [assignedToId], references: [id])
+
+  // Metadatos
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@map("workflow_steps")
+}
+
+model DocumentWorkflow {
+  id           String                @id @default(cuid())
+  documentId   String
+  workflowId   String
+  status       WorkflowStatus        @default(CREATED)
+
+  // Fechas
+  startedAt    DateTime              @default(now())
+  completedAt  DateTime?
+
+  // Datos específicos
+  data         Json?
+  notes        String?
+
+  // Relaciones
+  document     Document              @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  workflow     Workflow              @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, workflowId])
+  @@map("document_workflows")
+}
+
+// ================================
+// MODELOS DE COMUNICACIONES
+// ================================
+
+model Notification {
+  id          String                @id @default(cuid())
+
+  // Contenido
+  title       String
+  message     String                @db.Text
+  type        String                @default("info")
+  priority    Int                   @default(1)
+
+  // Estado
+  status      NotificationStatus    @default(PENDING)
+  readAt      DateTime?
+
+  // Relaciones
+  senderId    String?
+  receiverId  String
+  documentId  String?
+
+  sender      User?                 @relation("NotificationSender", fields: [senderId], references: [id])
+  receiver    User                  @relation("NotificationReceiver", fields: [receiverId], references: [id])
+  document    Document?             @relation(fields: [documentId], references: [id])
+
+  // Metadatos
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@map("notifications")
+}
+
+// ================================
+// MODELOS DE AUDITORÍA
+// ================================
+
+model AuditLog {
+  id            String                @id @default(cuid())
+
+  // Información de la acción
+  action        String
+  entity        String
+  entityId      String
+
+  // Datos de la acción
+  oldValues     Json?
+  newValues     Json?
+  changes       Json?
+
+  // Contexto
+  ipAddress     String?
+  userAgent     String?
+  sessionId     String?
+
+  // Relaciones
+  userId        String?
+  documentId    String?
+
+  user          User?                 @relation(fields: [userId], references: [id])
+  document      Document?             @relation(fields: [documentId], references: [id])
+
+  // Metadatos
+  createdAt     DateTime              @default(now())
+
+  @@map("audit_logs")
+}
+
+// ================================
+// CONFIGURACIÓN Y SISTEMA
+// ================================
+
+model SystemConfig {
+  id          String                @id @default(cuid())
+  key         String                @unique
+  value       String                @db.Text
+  description String?
+  isPublic    Boolean               @default(false)
+
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@map("system_config")
+}
+
+model FileUpload {
+  id              String                @id @default(cuid())
+
+  // Información del archivo
+  originalName    String
+  fileName        String
+  storagePath     String
+  fileSize        Int
+  mimeType        String
+  checksum        String
+
+  // Procesamiento
+  isProcessed     Boolean               @default(false)
+  processingError String?
+
+  // Relaciones
+  uploadedById    String?
+  uploadedBy      User?                 @relation(fields: [uploadedById], references: [id])
+
+  // Metadatos
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@map("file_uploads")
+}
+
+// ================================
+// MODELOS DE DOCUMENTOS DIPLOMÁTICOS
+// ================================
+
+model HojaRemision {
+  id                String                @id @default(cuid())
+  documentId        String                @unique
+
+  // Identificación
+  numeroDocumento   String                @unique
+  unidadRemitente   UnidadRemitente
+  fechaEmision      DateTime
+
+  // Contenido
+  asunto            String
+  destino           String
+  observaciones     String?
+
+  // Clasificación
+  clasificacion     SecurityClassification
+
+  // Relaciones
+  document          Document              @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdById       String
+  createdBy         User                  @relation(fields: [createdById], references: [id])
+
+  // Metadatos
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@map("hojas_remision")
+}
+
+model GuiaValija {
+  id                  String                @id @default(cuid())
+  documentId          String                @unique
+
+  // Identificación
+  numeroGuia          String                @unique
+  tipoGuia            TipoGuia
+  modalidad           ModalidadValija
+
+  // Fechas
+  fechaDespacho       DateTime?
+  fechaRecepcion      DateTime?
+
+  // Origen y Destino
+  origen              String
+  destino             String
+
+  // Clasificación
+  clasificacion       SecurityClassification
+
+  // Relaciones
+  document            Document              @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdById         String
+  createdBy           User                  @relation(fields: [createdById], references: [id])
+  precintos           Precinto[]
+  valijasInternas     ValijaInterna[]
+
+  // Metadatos
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@map("guias_valija")
+}
+
+model ValijaInterna {
+  id                String                @id @default(cuid())
+  guiaValijaId      String
+
+  // Identificación
+  numeroValija      String
+  orden             Int                   @default(1)
+
+  // Contenido
+  descripcion       String?
+
+  // Relaciones
+  guiaValija        GuiaValija            @relation(fields: [guiaValijaId], references: [id], onDelete: Cascade)
+  items             ItemValija[]
+  precintos         Precinto[]
+
+  // Metadatos
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@unique([guiaValijaId, numeroValija])
+  @@map("valijas_internas")
+}
+
+model ItemValija {
+  id                String                @id @default(cuid())
+  valijaInternaId   String
+
+  // Contenido
+  orden             Int
+  descripcion       String
+  cantidad          Int                   @default(1)
+  observaciones     String?
+
+  // Relaciones
+  valijaInterna     ValijaInterna         @relation(fields: [valijaInternaId], references: [id], onDelete: Cascade)
+
+  // Metadatos
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@map("items_valija")
+}
+
+model Precinto {
+  id                String                @id @default(cuid())
+  guiaValijaId      String?
+  valijaInternaId   String?
+
+  // Información del precinto
+  numeroPrecinto    String                @unique
+  estado            EstadoPrecinto        @default(INTACTO)
+  observaciones     String?
+
+  // Relaciones (un precinto puede estar en la guía principal o en valija interna)
+  guiaValija        GuiaValija?           @relation(fields: [guiaValijaId], references: [id], onDelete: Cascade)
+  valijaInterna     ValijaInterna?        @relation(fields: [valijaInternaId], references: [id], onDelete: Cascade)
+
+  // Metadatos
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@map("precintos")
+}
+
+model DocumentAuthorization {
+  id                String                @id @default(cuid())
+  documentId        String
+  userId            String
+
+  // Permisos
+  canRead           Boolean               @default(true)
+  canEdit           Boolean               @default(false)
+  canDelete         Boolean               @default(false)
+  canShare          Boolean               @default(false)
+
+  // Temporalidad
+  validFrom         DateTime              @default(now())
+  validUntil        DateTime?
+
+  // Autorización
+  authorizedById    String
+  reason            String?
+
+  // Relaciones
+  document          Document              @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorizedBy      User                  @relation("AuthorizationGranter", fields: [authorizedById], references: [id])
+
+  // Metadatos
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@unique([documentId, userId])
+  @@map("document_authorizations")
+}
