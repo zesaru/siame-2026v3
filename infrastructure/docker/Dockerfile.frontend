@@ -1,0 +1,67 @@
+# Dockerfile para Frontend Next.js
+# Multi-stage build para optimizar tamaño de imagen
+
+FROM node:18-alpine AS base
+
+# Instalar dependencias solo cuando sea necesario
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package.json package-lock.json* ./
+COPY prisma ./prisma/
+
+# Instalar dependencias
+RUN npm ci
+
+# Generar cliente Prisma
+RUN npx prisma generate
+
+# Rebuild del código fuente solo cuando sea necesario
+FROM base AS builder
+WORKDIR /app
+
+# Copiar dependencias instaladas
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Variables de entorno necesarias para el build
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
+
+# Build de Next.js
+# Esto genera .next/standalone que es una versión optimizada para producción
+RUN npm run build
+
+# Imagen de producción, copiar solo los archivos necesarios
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Crear usuario no-root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copiar archivos públicos
+COPY --from=builder /app/public ./public
+
+# Copiar build standalone
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copiar schema de Prisma para migraciones
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# Comando de inicio
+CMD ["node", "server.js"]

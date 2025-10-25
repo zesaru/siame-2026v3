@@ -1,0 +1,44 @@
+# Dockerfile para Agentes Especializados (Python)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements del orquestador (los agentes usan las mismas dependencias)
+COPY orchestrator/requirements.txt .
+
+# Instalar dependencias Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar código compartido
+COPY shared/ ./shared/
+
+# Copiar código de agentes (están en la raíz del proyecto)
+COPY agents/ ./agents/
+
+# Copiar código del orquestador (para clases base)
+COPY orchestrator/ ./orchestrator/
+
+# Copiar también el orquestador de src/backend (si es necesario)
+COPY src/backend/orchestrator/ ./src/backend/orchestrator/
+
+# Script de inicio dinámico basado en AGENT_TYPE
+COPY scripts/start-agent.sh /start-agent.sh
+RUN chmod +x /start-agent.sh
+
+# Variables de entorno por defecto
+ENV PYTHONUNBUFFERED=1
+ENV AGENT_TYPE=document_processor
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
+
+# Comando de inicio
+CMD ["/start-agent.sh"]

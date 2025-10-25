@@ -1,0 +1,15 @@
+# Configuración de dashboards de Grafana
+# Compatible con Mac (desarrollo) y Windows Server 2025 (producción)
+
+apiVersion: 1
+
+providers:
+  - name: 'SIAME Dashboards'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
