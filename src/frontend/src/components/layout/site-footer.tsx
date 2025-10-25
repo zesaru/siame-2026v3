@@ -17,12 +17,12 @@ export function SiteFooter() {
           {/* Información institucional */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
                 <Shield className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="font-bold">MAEUEC</div>
-                <div className="text-xs text-muted-foreground">Asuntos Exteriores</div>
+                <div className="font-bold">Embajada del Perú</div>
+                <div className="text-xs text-muted-foreground">Tokio, Japón</div>
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -32,15 +32,15 @@ export function SiteFooter() {
             <div className="space-y-1">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>siame@maeuec.es</span>
+                <span>embajada@embaperu.jp</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <span>+34 91 379 97 00</span>
+                <span>+81 3-3406-4243</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Globe className="h-4 w-4" />
-                <span>Madrid, España</span>
+                <span>Tokio, Japón</span>
               </div>
             </div>
           </div>
@@ -94,21 +94,21 @@ export function SiteFooter() {
             <h4 className="text-sm font-medium">Institucional</h4>
             <nav className="space-y-2">
               <a
-                href="https://www.exteriores.gob.es"
+                href="https://www.gob.pe/rree"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-1 text-sm text-muted-foreground hover:text-foreground"
               >
-                <span>Portal Principal</span>
+                <span>Cancillería del Perú</span>
                 <ExternalLink className="h-3 w-3" />
               </a>
               <a
-                href="https://sede.maeuec.gob.es"
+                href="https://www.embajadaperu.org.jp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-1 text-sm text-muted-foreground hover:text-foreground"
               >
-                <span>Sede Electrónica</span>
+                <span>Portal de la Embajada</span>
                 <ExternalLink className="h-3 w-3" />
               </a>
               <Link href="/privacy" className="block text-sm text-muted-foreground hover:text-foreground">

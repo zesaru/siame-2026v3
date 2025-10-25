@@ -12,13 +12,13 @@ import { SecurityClassification, DiplomaticRole } from "@/types"
 // Datos de ejemplo para demostrar el layout
 const mockUser = {
   id: "1",
-  name: "Ana García López",
-  email: "ana.garcia@maeuec.es",
+  name: "María Elena Castillo Ayala",
+  email: "mcastillo@embaperu.jp",
   avatar: "",
   role: DiplomaticRole.CONSEJERO,
   securityClearance: SecurityClassification.CONFIDENCIAL,
-  embassy: "Embajada de España en Francia",
-  department: "Asuntos Políticos",
+  embassy: "Embajada del Perú en Japón",
+  department: "Asuntos Políticos y Económicos",
   lastLoginAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // Hace 2 horas
   sessionExpiresAt: new Date(Date.now() + 30 * 60 * 1000), // Expira en 30 minutos
 };

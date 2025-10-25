@@ -18,11 +18,11 @@ export const metadata: Metadata = {
     template: '%s | SIAME 2026v3',
     default: 'SIAME 2026v3 - Sistema Inteligente de Administración y Manejo de Expedientes',
   },
-  description: 'Sistema Inteligente de Administración y Manejo de Expedientes del Ministerio de Asuntos Exteriores, Unión Europea y Cooperación',
-  keywords: ['SIAME', 'diplomático', 'documentos', 'gestión', 'MAEUEC'],
-  authors: [{ name: 'MAEUEC - Desarrollo Digital' }],
-  creator: 'Ministerio de Asuntos Exteriores, Unión Europea y Cooperación',
-  publisher: 'MAEUEC',
+  description: 'Sistema Inteligente de Administración y Manejo de Expedientes de la Embajada del Perú en Japón',
+  keywords: ['SIAME', 'diplomático', 'documentos', 'gestión', 'Perú', 'Japón', 'embajada'],
+  authors: [{ name: 'Embajada del Perú en Japón - Desarrollo Digital' }],
+  creator: 'Embajada del Perú en Japón',
+  publisher: 'Ministerio de Relaciones Exteriores del Perú',
   robots: {
     index: false,
     follow: false,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   other: {
     'security-classification': 'RESTRINGIDO',
-    'government-agency': 'MAEUEC',
+    'government-agency': 'Embajada del Perú en Japón',
   },
 }
 

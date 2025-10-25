@@ -32,61 +32,66 @@ async function main() {
 
   const embajador = await prisma.user.create({
     data: {
-      name: 'Carlos Martínez',
-      email: 'carlos.martinez@maeuec.es',
+      name: 'Luis Alberto Chuquihuara Chil',
+      email: 'lchuquihuara@embaperu.jp',
       password: hashedPassword,
       diplomaticRole: 'EMBAJADOR',
       securityClearance: 'ALTO_SECRETO',
       isVerified: true,
-      department: 'Dirección General',
+      department: 'Despacho del Embajador',
+      embassy: 'Embajada del Perú en Japón',
     },
   })
 
   const consejero = await prisma.user.create({
     data: {
-      name: 'María López',
-      email: 'maria.lopez@maeuec.es',
+      name: 'María Elena Castillo Ayala',
+      email: 'mcastillo@embaperu.jp',
       password: hashedPassword,
       diplomaticRole: 'CONSEJERO',
       securityClearance: 'SECRETO',
       isVerified: true,
-      department: 'Asuntos Políticos',
+      department: 'Asuntos Políticos y Económicos',
+      embassy: 'Embajada del Perú en Japón',
     },
   })
 
   const primerSecretario = await prisma.user.create({
     data: {
-      name: 'Juan García',
-      email: 'juan.garcia@maeuec.es',
+      name: 'Carlos Raúl Mendoza Flores',
+      email: 'cmendoza@embaperu.jp',
       password: hashedPassword,
       diplomaticRole: 'PRIMER_SECRETARIO',
       securityClearance: 'CONFIDENCIAL',
       isVerified: true,
       department: 'Asuntos Consulares',
+      embassy: 'Embajada del Perú en Japón',
     },
   })
 
   const segundoSecretario = await prisma.user.create({
     data: {
-      name: 'Ana Rodríguez',
-      email: 'ana.rodriguez@maeuec.es',
+      name: 'Ana Patricia Quispe Mamani',
+      email: 'aquispe@embaperu.jp',
       password: hashedPassword,
       diplomaticRole: 'SEGUNDO_SECRETARIO',
       securityClearance: 'RESTRINGIDO',
       isVerified: true,
-      department: 'Valijas Diplomáticas',
+      department: 'Valijas Diplomáticas y Protocolo',
+      embassy: 'Embajada del Perú en Japón',
     },
   })
 
   const admin = await prisma.user.create({
     data: {
-      name: 'Admin Sistema',
-      email: 'admin@maeuec.es',
+      name: 'Admin Sistema SIAME',
+      email: 'admin@embaperu.jp',
       password: hashedPassword,
       diplomaticRole: 'EMBAJADOR',
       securityClearance: 'ALTO_SECRETO',
       isVerified: true,
-      department: 'Administración',
+      department: 'Tecnologías de la Información',
+      embassy: 'Embajada del Perú en Japón',
     },
   })
 
@@ -123,7 +128,7 @@ async function main() {
       assignedToId: primerSecretario.id,
       extractedData: {
         numeroGuia: 'GV-IN-2024-015',
-        origen: 'Madrid - Sede Central',
+        origen: 'Lima - Ministerio de Relaciones Exteriores',
         pesoKg: 5.2,
         numeroBultos: 3,
       },
@@ -139,8 +144,8 @@ async function main() {
       status: 'PENDING_REVIEW',
       createdById: primerSecretario.id,
       extractedData: {
-        pais: 'Francia',
-        tema: 'Cooperación Cultural',
+        pais: 'Japón',
+        tema: 'Cooperación Cultural Perú-Japón',
         urgencia: 'Alta',
       },
     },

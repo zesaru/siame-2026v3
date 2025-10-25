@@ -31,15 +31,15 @@ interface SiteHeaderProps {
   className?: string
 }
 
-// Logo del Ministerio de Asuntos Exteriores (placeholder)
-const MinistryLogo = () => (
+// Logo de la Embajada del Perú en Japón
+const EmbassyLogo = () => (
   <div className="flex items-center space-x-2">
-    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+    <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
       <Shield className="h-5 w-5 text-white" />
     </div>
     <div className="hidden md:block">
-      <div className="text-sm font-bold text-foreground">MAEUEC</div>
-      <div className="text-xs text-muted-foreground">Asuntos Exteriores</div>
+      <div className="text-sm font-bold text-foreground">Embajada del Perú</div>
+      <div className="text-xs text-muted-foreground">Tokio, Japón</div>
     </div>
   </div>
 );
@@ -99,7 +99,7 @@ export function SiteHeader({ user, className }: SiteHeaderProps) {
         {/* Logo y título */}
         <div className="flex items-center space-x-4">
           <Link href="/dashboard" className="flex items-center space-x-2">
-            <MinistryLogo />
+            <EmbassyLogo />
           </Link>
 
           <div className="hidden lg:block">
