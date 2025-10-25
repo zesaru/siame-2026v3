@@ -12,7 +12,7 @@ declare module "next-auth" {
    * Extended User object
    */
   interface User extends DefaultUser {
-    role?: DiplomaticRole
+    diplomaticRole?: DiplomaticRole
     securityClearance?: SecurityClassification
   }
 
@@ -22,7 +22,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string
-      role?: DiplomaticRole
+      diplomaticRole?: DiplomaticRole
       securityClearance?: SecurityClassification
     } & DefaultSession["user"]
   }
@@ -34,7 +34,7 @@ declare module "next-auth/jwt" {
    */
   interface JWT extends DefaultJWT {
     id?: string
-    role?: DiplomaticRole
+    diplomaticRole?: DiplomaticRole
     securityClearance?: SecurityClassification
   }
 }

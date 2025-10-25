@@ -9,17 +9,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/database/prisma"
 import { auth } from "@/lib/auth"
 
-interface RouteParams {
-  params: {
-    id: string
-  }
-}
-
 // GET /api/documents/[id] - Obtener documento por ID
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
 
@@ -31,7 +26,7 @@ export async function GET(
     }
 
     const document = await prisma.document.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         creator: {
           select: {
@@ -42,14 +37,14 @@ export async function GET(
             securityClearance: true,
           },
         },
-        assignee: {
+        assignedTo: {
           select: {
             id: true,
             name: true,
             diplomaticRole: true,
           },
         },
-        workflow: {
+        workflows: {
           include: {
             workflow: true,
           },
@@ -82,8 +77,9 @@ export async function GET(
 // PUT /api/documents/[id] - Actualizar documento
 export async function PUT(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
 
@@ -99,7 +95,7 @@ export async function PUT(
 
     // Verificar que el documento existe
     const existingDocument = await prisma.document.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingDocument) {
@@ -113,7 +109,7 @@ export async function PUT(
 
     // Actualizar documento
     const document = await prisma.document.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(title && { title }),
         ...(description !== undefined && { description }),
@@ -136,12 +132,10 @@ export async function PUT(
     await prisma.auditLog.create({
       data: {
         action: "DOCUMENT_UPDATED",
-        entityType: "DOCUMENT",
+        entity: "DOCUMENT",
         entityId: document.id,
         userId: session.user.id,
-        details: {
-          changes: body,
-        },
+        changes: body,
       },
     })
 
@@ -162,8 +156,9 @@ export async function PUT(
 // DELETE /api/documents/[id] - Eliminar documento
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
 
@@ -176,7 +171,7 @@ export async function DELETE(
 
     // Verificar que el documento existe
     const existingDocument = await prisma.document.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingDocument) {
@@ -191,7 +186,7 @@ export async function DELETE(
 
     // Eliminar documento (soft delete - cambiar status)
     const document = await prisma.document.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: "ARCHIVED",
       },
@@ -201,10 +196,10 @@ export async function DELETE(
     await prisma.auditLog.create({
       data: {
         action: "DOCUMENT_DELETED",
-        entityType: "DOCUMENT",
+        entity: "DOCUMENT",
         entityId: document.id,
         userId: session.user.id,
-        details: {
+        oldValues: {
           title: document.title,
         },
       },

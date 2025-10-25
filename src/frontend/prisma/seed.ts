@@ -39,7 +39,6 @@ async function main() {
       securityClearance: 'ALTO_SECRETO',
       isVerified: true,
       department: 'Dirección General',
-      phone: '+34 91 234 5678',
     },
   })
 
@@ -52,7 +51,6 @@ async function main() {
       securityClearance: 'SECRETO',
       isVerified: true,
       department: 'Asuntos Políticos',
-      phone: '+34 91 234 5679',
     },
   })
 
@@ -65,7 +63,6 @@ async function main() {
       securityClearance: 'CONFIDENCIAL',
       isVerified: true,
       department: 'Asuntos Consulares',
-      phone: '+34 91 234 5680',
     },
   })
 
@@ -78,7 +75,6 @@ async function main() {
       securityClearance: 'RESTRINGIDO',
       isVerified: true,
       department: 'Valijas Diplomáticas',
-      phone: '+34 91 234 5681',
     },
   })
 
@@ -91,7 +87,6 @@ async function main() {
       securityClearance: 'ALTO_SECRETO',
       isVerified: true,
       department: 'Administración',
-      phone: '+34 91 234 5682',
     },
   })
 
@@ -104,12 +99,12 @@ async function main() {
     data: {
       title: 'Hoja de Remisión OGA-2024-001',
       description: 'Remisión de documentos clasificados para revisión del Embajador',
-      documentType: 'HOJA_REMISION_OGA',
+      type: 'HOJA_REMISION_OGA',
       classification: 'SECRETO',
       status: 'APPROVED',
-      creatorId: consejero.id,
-      assigneeId: embajador.id,
-      metadata: {
+      createdById: consejero.id,
+      assignedToId: embajador.id,
+      extractedData: {
         numeroOficio: 'OGA-2024-001',
         destinatario: 'Embajador',
         asunto: 'Documentos para revisión urgente',
@@ -121,12 +116,12 @@ async function main() {
     data: {
       title: 'Guía de Valija Diplomática - Entrada Ordinaria',
       description: 'Recepción de valija diplomática desde la sede central',
-      documentType: 'GUIA_VALIJA_ENTRADA_ORDINARIA',
+      type: 'GUIA_VALIJA_ENTRADA_ORDINARIA',
       classification: 'CONFIDENCIAL',
       status: 'UNDER_REVIEW',
-      creatorId: segundoSecretario.id,
-      assigneeId: primerSecretario.id,
-      metadata: {
+      createdById: segundoSecretario.id,
+      assignedToId: primerSecretario.id,
+      extractedData: {
         numeroGuia: 'GV-IN-2024-015',
         origen: 'Madrid - Sede Central',
         pesoKg: 5.2,
@@ -139,11 +134,11 @@ async function main() {
     data: {
       title: 'Nota Diplomática - Protocolo Bilateral',
       description: 'Propuesta de nuevo protocolo de cooperación bilateral',
-      documentType: 'NOTA_DIPLOMATICA',
+      type: 'NOTA_DIPLOMATICA',
       classification: 'RESTRINGIDO',
       status: 'PENDING_REVIEW',
-      creatorId: primerSecretario.id,
-      metadata: {
+      createdById: primerSecretario.id,
+      extractedData: {
         pais: 'Francia',
         tema: 'Cooperación Cultural',
         urgencia: 'Alta',
@@ -155,11 +150,11 @@ async function main() {
     data: {
       title: 'Memorándum Interno - Actualización de Procedimientos',
       description: 'Nuevos procedimientos para gestión de valijas diplomáticas',
-      documentType: 'MEMORANDUM_INTERNO',
+      type: 'MEMORANDUM_INTERNO',
       classification: 'PUBLICO',
       status: 'DRAFT',
-      creatorId: admin.id,
-      metadata: {
+      createdById: admin.id,
+      extractedData: {
         departamento: 'Todos',
         fechaVigencia: '2024-02-01',
       },
@@ -170,12 +165,12 @@ async function main() {
     data: {
       title: 'Informe Técnico - Sistema SIAME',
       description: 'Análisis de rendimiento del sistema SIAME en el primer trimestre',
-      documentType: 'INFORME_TECNICO',
+      type: 'INFORME_TECNICO',
       classification: 'CONFIDENCIAL',
       status: 'APPROVED',
-      creatorId: admin.id,
-      assigneeId: embajador.id,
-      metadata: {
+      createdById: admin.id,
+      assignedToId: embajador.id,
+      extractedData: {
         periodo: 'Q1 2024',
         metricas: {
           documentosProcesados: 1250,
@@ -195,8 +190,8 @@ async function main() {
     data: {
       name: 'Validación de Documentos Secretos',
       description: 'Proceso de revisión y aprobación de documentos clasificados como SECRETO',
-      status: 'ACTIVE',
-      createdBy: embajador.id,
+      status: 'CREATED',
+      createdById: embajador.id,
     },
   })
 
@@ -204,8 +199,8 @@ async function main() {
     data: {
       name: 'Procesamiento de Valijas Diplomáticas',
       description: 'Workflow estándar para recepción y validación de valijas diplomáticas',
-      status: 'ACTIVE',
-      createdBy: primerSecretario.id,
+      status: 'CREATED',
+      createdById: primerSecretario.id,
     },
   })
 
@@ -217,32 +212,24 @@ async function main() {
         name: 'Revisión inicial',
         description: 'Verificación de documentación completa',
         stepOrder: 1,
-        assignedRole: 'CONSEJERO',
-        requiredClearance: 'SECRETO',
       },
       {
         workflowId: workflow1.id,
         name: 'Aprobación final',
         description: 'Aprobación del Embajador',
         stepOrder: 2,
-        assignedRole: 'EMBAJADOR',
-        requiredClearance: 'SECRETO',
       },
       {
         workflowId: workflow2.id,
         name: 'Recepción',
         description: 'Registro de entrada de valija',
         stepOrder: 1,
-        assignedRole: 'SEGUNDO_SECRETARIO',
-        requiredClearance: 'RESTRINGIDO',
       },
       {
         workflowId: workflow2.id,
         name: 'Validación',
         description: 'Verificación de contenido',
         stepOrder: 2,
-        assignedRole: 'PRIMER_SECRETARIO',
-        requiredClearance: 'CONFIDENCIAL',
       },
     ],
   })
@@ -253,7 +240,6 @@ async function main() {
       documentId: doc1.id,
       workflowId: workflow1.id,
       status: 'COMPLETED',
-      currentStep: 2,
       completedAt: new Date(),
     },
   })
@@ -263,7 +249,6 @@ async function main() {
       documentId: doc2.id,
       workflowId: workflow2.id,
       status: 'IN_PROGRESS',
-      currentStep: 1,
     },
   })
 
@@ -275,35 +260,32 @@ async function main() {
   await prisma.notification.createMany({
     data: [
       {
-        userId: embajador.id,
+        receiverId: embajador.id,
         type: 'DOCUMENT_APPROVED',
         title: 'Documento Aprobado',
         message: 'El documento OGA-2024-001 ha sido aprobado',
-        read: false,
-        actionUrl: `/documents/${doc1.id}`,
+        documentId: doc1.id,
       },
       {
-        userId: primerSecretario.id,
+        receiverId: primerSecretario.id,
         type: 'WORKFLOW_ASSIGNED',
         title: 'Workflow Asignado',
         message: 'Se te ha asignado el workflow de validación de valija diplomática',
-        read: false,
-        actionUrl: `/workflows/${workflow2.id}`,
       },
       {
-        userId: consejero.id,
+        receiverId: consejero.id,
         type: 'COMMENT_ADDED',
         title: 'Nuevo Comentario',
         message: 'El Embajador ha comentado en tu documento',
-        read: true,
-        actionUrl: `/documents/${doc1.id}#comments`,
+        documentId: doc1.id,
+        readAt: new Date(),
       },
       {
-        userId: admin.id,
+        receiverId: admin.id,
         type: 'SYSTEM',
         title: 'Actualización del Sistema',
         message: 'SIAME ha sido actualizado a la versión 2026v3',
-        read: true,
+        readAt: new Date(),
       },
     ],
   })
@@ -317,31 +299,30 @@ async function main() {
     data: [
       {
         action: 'USER_LOGIN',
-        entityType: 'USER',
+        entity: 'USER',
         entityId: embajador.id,
         userId: embajador.id,
-        details: { ip: '192.168.1.100', userAgent: 'Mozilla/5.0' },
       },
       {
         action: 'DOCUMENT_CREATED',
-        entityType: 'DOCUMENT',
+        entity: 'DOCUMENT',
         entityId: doc1.id,
         userId: consejero.id,
-        details: { title: doc1.title, classification: doc1.classification },
+        newValues: { title: doc1.title, classification: doc1.classification },
       },
       {
         action: 'DOCUMENT_APPROVED',
-        entityType: 'DOCUMENT',
+        entity: 'DOCUMENT',
         entityId: doc1.id,
         userId: embajador.id,
-        details: { previousStatus: 'UNDER_REVIEW', newStatus: 'APPROVED' },
+        oldValues: { status: 'UNDER_REVIEW' },
+        newValues: { status: 'APPROVED' },
       },
       {
         action: 'WORKFLOW_COMPLETED',
-        entityType: 'WORKFLOW',
+        entity: 'WORKFLOW',
         entityId: workflow1.id,
         userId: embajador.id,
-        details: { documentId: doc1.id },
       },
     ],
   })

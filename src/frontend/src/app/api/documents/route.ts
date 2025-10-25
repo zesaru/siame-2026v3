@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const where: any = {}
 
     if (type && type !== "all") {
-      where.documentType = type
+      where.type = type
     }
 
     if (classification && classification !== "all") {
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
               diplomaticRole: true,
             },
           },
-          assignee: {
+          assignedTo: {
             select: {
               id: true,
               name: true,
@@ -117,13 +117,12 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      documentType,
+      type,
       classification,
-      metadata,
     } = body
 
     // Validaciones
-    if (!title || !documentType || !classification) {
+    if (!title || !type || !classification) {
       return NextResponse.json(
         { error: "Faltan campos requeridos" },
         { status: 400 }
@@ -135,11 +134,10 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description: description || null,
-        documentType,
+        type,
         classification,
         status: "DRAFT",
-        metadata: metadata || {},
-        creatorId: session.user.id,
+        createdById: session.user.id,
       },
       include: {
         creator: {
@@ -157,12 +155,12 @@ export async function POST(request: NextRequest) {
     await prisma.auditLog.create({
       data: {
         action: "DOCUMENT_CREATED",
-        entityType: "DOCUMENT",
+        entity: "DOCUMENT",
         entityId: document.id,
         userId: session.user.id,
-        details: {
+        newValues: {
           title: document.title,
-          type: document.documentType,
+          type: document.type,
         },
       },
     })
