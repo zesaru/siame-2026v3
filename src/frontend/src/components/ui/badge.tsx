@@ -3,23 +3,23 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 dark:focus:ring-slate-300",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-slate-900 text-slate-50 hover:bg-slate-900/80 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/80",
-        secondary:
-          "border-transparent bg-slate-100 text-slate-900 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80",
-        destructive:
-          "border-transparent bg-red-500 text-slate-50 hover:bg-red-500/80 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/80",
-        outline: "text-slate-950 dark:text-slate-50",
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        success: "border-transparent bg-success text-success-foreground hover:bg-success/80",
+        warning: "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
+        info: "border-transparent bg-info text-info-foreground hover:bg-info/80",
+        outline: "text-foreground border-border",
         // Variantes específicas para clasificación de seguridad
-        publico: "border-transparent bg-green-500 text-white hover:bg-green-600",
-        restringido: "border-transparent bg-blue-500 text-white hover:bg-blue-600",
-        confidencial: "border-transparent bg-amber-500 text-white hover:bg-amber-600",
-        secreto: "border-transparent bg-red-500 text-white hover:bg-red-600",
-        alto_secreto: "border-transparent bg-purple-600 text-white hover:bg-purple-700",
+        publico: "border-transparent bg-classification-publico text-white hover:bg-classification-publico/90",
+        restringido: "border-transparent bg-classification-restringido text-white hover:bg-classification-restringido/90",
+        confidencial: "border-transparent bg-classification-confidencial text-white hover:bg-classification-confidencial/90",
+        secreto: "border-transparent bg-classification-secreto text-white hover:bg-classification-secreto/90",
+        alto_secreto: "border-transparent bg-classification-alto-secreto text-white hover:bg-classification-alto-secreto/90",
       },
     },
     defaultVariants: {

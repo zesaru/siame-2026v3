@@ -119,7 +119,27 @@ export async function POST(request: NextRequest) {
       description,
       type,
       classification,
+      // Datos extraídos de Azure
+      extractedData,
+      ocrText,
+      ocrConfidence,
+      rawAzureResponse,
+      // Datos del archivo
+      fileName,
+      fileSize,
+      mimeType,
+      storagePath,
+      // Datos específicos de Guía de Valija
+      guiaValija,
     } = body
+
+    console.log("📝 Creating document with data:", {
+      title,
+      type,
+      classification,
+      hasExtractedData: !!extractedData,
+      hasGuiaValija: !!guiaValija,
+    })
 
     // Validaciones
     if (!title || !type || !classification) {
@@ -129,52 +149,93 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Crear documento
-    const document = await prisma.document.create({
-      data: {
-        title,
-        description: description || null,
-        type,
-        classification,
-        status: "DRAFT",
-        createdById: session.user.id,
-      },
-      include: {
-        creator: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            diplomaticRole: true,
+    // Crear documento en una transacción
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Crear documento base
+      const document = await tx.document.create({
+        data: {
+          title,
+          description: description || null,
+          type,
+          classification,
+          status: "DRAFT",
+          createdById: session.user.id,
+          // Archivo
+          originalFileName: fileName || null,
+          storagePath: storagePath || null,
+          fileSize: fileSize || null,
+          mimeType: mimeType || null,
+          // OCR y datos extraídos
+          ocrText: ocrText || null,
+          ocrConfidence: ocrConfidence || null,
+          extractedData: extractedData || null,
+        },
+      })
+
+      // 2. Si es Guía de Valija, crear registro específico
+      if (type.includes("GUIA_VALIJA") && guiaValija) {
+        console.log("📋 Creating GuiaValija record:", guiaValija)
+
+        await tx.guiaValija.create({
+          data: {
+            documentId: document.id,
+            numeroGuia: guiaValija.numeroGuia,
+            tipoGuia: guiaValija.tipoGuia,
+            modalidad: guiaValija.modalidad,
+            origen: guiaValija.origen || "N/A",
+            destino: guiaValija.destino || "N/A",
+            clasificacion: classification,
+            createdById: session.user.id,
+            // Fechas
+            fechaDespacho: guiaValija.fechaDespacho ? new Date(guiaValija.fechaDespacho) : null,
+            fechaRecepcion: guiaValija.fechaRecepcion ? new Date(guiaValija.fechaRecepcion) : null,
+            // Personal responsable (extraído por Azure)
+            preparadoPor: guiaValija.preparadoPor || null,
+            revisadoPor: guiaValija.revisadoPor || null,
+            receptorFirma: guiaValija.receptorFirma || null,
+            // Pesos (extraído por Azure)
+            pesoTotalItems: guiaValija.pesoTotalItems ? parseFloat(guiaValija.pesoTotalItems) : null,
+            pesoOficial: guiaValija.pesoOficial ? parseFloat(guiaValija.pesoOficial) : null,
+            // Totales (extraído por Azure)
+            totalItems: guiaValija.totalItems ? parseInt(guiaValija.totalItems) : null,
+            // Información de transporte
+            numeroGuiaAerea: guiaValija.numeroGuiaAerea || null,
+            numeroBolsa: guiaValija.numeroBolsa || null,
+            tipoBolsa: guiaValija.tipoBolsa || null,
+          },
+        })
+      }
+
+      // 3. Crear log de auditoría
+      await tx.auditLog.create({
+        data: {
+          action: "DOCUMENT_CREATED",
+          entity: "DOCUMENT",
+          entityId: document.id,
+          userId: session.user.id,
+          newValues: {
+            title: document.title,
+            type: document.type,
+            classification: document.classification,
           },
         },
-      },
+      })
+
+      return document
     })
 
-    // Crear log de auditoría
-    await prisma.auditLog.create({
-      data: {
-        action: "DOCUMENT_CREATED",
-        entity: "DOCUMENT",
-        entityId: document.id,
-        userId: session.user.id,
-        newValues: {
-          title: document.title,
-          type: document.type,
-        },
-      },
-    })
+    console.log("✅ Document created successfully:", result.id)
 
     return NextResponse.json(
       {
         success: true,
-        data: document,
+        data: result,
         message: "Documento creado exitosamente",
       },
       { status: 201 }
     )
   } catch (error) {
-    console.error("Error creating document:", error)
+    console.error("❌ Error creating document:", error)
     return NextResponse.json(
       { error: "Error al crear documento" },
       { status: 500 }

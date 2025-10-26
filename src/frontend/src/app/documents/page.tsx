@@ -2,9 +2,10 @@
 
 /**
  * SIAME 2026v3 - Página de Documentos
- * Listado y gestión de documentos diplomáticos
+ * Listado y gestión de documentos diplomáticos con sorting y paginación
  */
 
+import * as React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   Table,
   TableBody,
@@ -20,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { FileText, ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight, Download } from "lucide-react"
 
 // Tipos de documentos
 interface Document {
@@ -92,6 +95,15 @@ export default function DocumentsPage() {
   const [filterType, setFilterType] = useState("all")
   const [filterClassification, setFilterClassification] = useState("all")
 
+  // Sorting
+  type SortField = "title" | "type" | "classification" | "status" | "createdBy" | "createdAt" | "size"
+  const [sortField, setSortField] = useState<SortField>("createdAt")
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
   const getClassificationBadge = (classification: string) => {
     const variants: Record<string, any> = {
       PUBLICO: "publico",
@@ -138,6 +150,28 @@ export default function DocumentsPage() {
     return `Hace ${diffDays} días`
   }
 
+  // Funciones de sorting
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortField(field)
+      setSortDirection("asc")
+    }
+    setCurrentPage(1) // Reset to first page when sorting
+  }
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ChevronsUpDown className="h-4 w-4 ml-1 text-muted-foreground" />
+    }
+    return sortDirection === "asc" ? (
+      <ChevronUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ChevronDown className="h-4 w-4 ml-1" />
+    )
+  }
+
   // Filtrar documentos
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -147,6 +181,31 @@ export default function DocumentsPage() {
 
     return matchesSearch && matchesType && matchesClassification
   })
+
+  // Ordenar documentos
+  const sortedDocuments = [...filteredDocuments].sort((a, b) => {
+    let aValue: any = a[sortField]
+    let bValue: any = b[sortField]
+
+    if (sortField === "createdAt") {
+      aValue = a.createdAt.getTime()
+      bValue = b.createdAt.getTime()
+    }
+
+    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1
+    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1
+    return 0
+  })
+
+  // Paginación
+  const totalPages = Math.ceil(sortedDocuments.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedDocuments = sortedDocuments.slice(startIndex, endIndex)
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -254,25 +313,83 @@ export default function DocumentsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Documento</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Clasificación</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Creado por</TableHead>
-                  <TableHead>Fecha</TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort("title")}
+                      className="flex items-center hover:text-foreground"
+                      aria-label="Ordenar por documento"
+                    >
+                      Documento
+                      {getSortIcon("title")}
+                    </button>
+                  </TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort("type")}
+                      className="flex items-center hover:text-foreground"
+                      aria-label="Ordenar por tipo"
+                    >
+                      Tipo
+                      {getSortIcon("type")}
+                    </button>
+                  </TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort("classification")}
+                      className="flex items-center hover:text-foreground"
+                      aria-label="Ordenar por clasificación"
+                    >
+                      Clasificación
+                      {getSortIcon("classification")}
+                    </button>
+                  </TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort("status")}
+                      className="flex items-center hover:text-foreground"
+                      aria-label="Ordenar por estado"
+                    >
+                      Estado
+                      {getSortIcon("status")}
+                    </button>
+                  </TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort("createdBy")}
+                      className="flex items-center hover:text-foreground"
+                      aria-label="Ordenar por creador"
+                    >
+                      Creado por
+                      {getSortIcon("createdBy")}
+                    </button>
+                  </TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort("createdAt")}
+                      className="flex items-center hover:text-foreground"
+                      aria-label="Ordenar por fecha"
+                    >
+                      Fecha
+                      {getSortIcon("createdAt")}
+                    </button>
+                  </TableHead>
                   <TableHead>Tamaño</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredDocuments.length === 0 ? (
+                {paginatedDocuments.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-gray-500 py-8">
-                      No se encontraron documentos
+                    <TableCell colSpan={8} className="p-0">
+                      <EmptyState
+                        icon={FileText}
+                        title="No se encontraron documentos"
+                        description="Intenta ajustar los filtros de búsqueda para encontrar lo que buscas."
+                      />
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredDocuments.map((doc) => (
+                  paginatedDocuments.map((doc) => (
                     <TableRow key={doc.id}>
                       <TableCell className="font-medium">
                         <Link
@@ -307,15 +424,81 @@ export default function DocumentsPage() {
                         {doc.size}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/documents/${doc.id}`}>Ver</Link>
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/documents/${doc.id}`}>Ver</Link>
+                          </Button>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/api/documents/${doc.id}/download`} download>
+                              <Download className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
+
+            {/* Paginación */}
+            {sortedDocuments.length > itemsPerPage && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                <div className="text-sm text-muted-foreground">
+                  Mostrando {startIndex + 1} a {Math.min(endIndex, sortedDocuments.length)} de {sortedDocuments.length} documentos
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    aria-label="Página anterior"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        // Show first page, last page, current page, and pages around current
+                        return (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+                        )
+                      })
+                      .map((page, index, array) => (
+                        <React.Fragment key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && (
+                            <span className="px-2 text-muted-foreground">...</span>
+                          )}
+                          <Button
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => goToPage(page)}
+                            className="w-10"
+                            aria-label={`Ir a página ${page}`}
+                            aria-current={currentPage === page ? "page" : undefined}
+                          >
+                            {page}
+                          </Button>
+                        </React.Fragment>
+                      ))}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    aria-label="Página siguiente"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>

@@ -94,11 +94,18 @@ export function SiteHeader({ user, className }: SiteHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (
-    <header className={cn("sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)}>
+    <header
+      className={cn("sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)}
+      role="banner"
+    >
       <div className="container flex h-16 items-center justify-between">
         {/* Logo y título */}
         <div className="flex items-center space-x-4">
-          <Link href="/dashboard" className="flex items-center space-x-2">
+          <Link
+            href="/dashboard"
+            className="flex items-center space-x-2"
+            aria-label="Ir al dashboard - SIAME 2026v3"
+          >
             <EmbassyLogo />
           </Link>
 
@@ -109,12 +116,16 @@ export function SiteHeader({ user, className }: SiteHeaderProps) {
         </div>
 
         {/* Navegación principal - Desktop */}
-        <div className="hidden md:flex flex-1 items-center justify-center px-6">
+        <nav
+          className="hidden md:flex flex-1 items-center justify-center px-6"
+          role="navigation"
+          aria-label="Navegación principal"
+        >
           <MainNav
             userRole={user?.role}
             securityClearance={user?.securityClearance}
           />
-        </div>
+        </nav>
 
         {/* Sección derecha */}
         <div className="flex items-center space-x-4">
@@ -169,6 +180,9 @@ export function SiteHeader({ user, className }: SiteHeaderProps) {
             size="icon"
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             <Menu className="h-4 w-4" />
             <span className="sr-only">Menú</span>
@@ -178,7 +192,12 @@ export function SiteHeader({ user, className }: SiteHeaderProps) {
 
       {/* Navegación móvil */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t bg-background">
+        <div
+          id="mobile-menu"
+          className="md:hidden border-t bg-background"
+          role="navigation"
+          aria-label="Navegación móvil"
+        >
           <div className="container py-4">
             <MainNav
               userRole={user?.role}

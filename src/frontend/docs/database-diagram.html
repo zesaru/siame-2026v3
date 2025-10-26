@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAME 2026v3 - Diagrama de Base de Datos</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'forest',
+            securityLevel: 'loose',
+            er: {
+                useMaxWidth: true,
+                fontSize: 14
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f7fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        .diagram-container {
+            padding: 40px;
+            background: white;
+            overflow-x: auto;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+        }
+        .legend {
+            padding: 30px;
+            background: #f7fafc;
+            border-top: 2px solid #e2e8f0;
+        }
+        .legend h2 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .legend-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+        .legend-item h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .legend-item ul {
+            list-style: none;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+        .legend-item ul li {
+            padding: 3px 0;
+        }
+        .legend-item ul li:before {
+            content: "→ ";
+            color: #667eea;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ SIAME 2026v3</h1>
+            <p>Diagrama de Entidad-Relación de la Base de Datos</p>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 10px;">
+                Sistema Inteligente de Administración y Manejo de Expedientes
+            </p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>20</h3>
+                <p>Tablas Principales</p>
+            </div>
+            <div class="stat-card">
+                <h3>10</h3>
+                <p>Enumeraciones (ENUMs)</p>
+            </div>
+            <div class="stat-card">
+                <h3>45+</h3>
+                <p>Relaciones</p>
+            </div>
+            <div class="stat-card">
+                <h3>PostgreSQL</h3>
+                <p>Base de Datos</p>
+            </div>
+        </div>
+
+        <div class="diagram-container">
+            <div class="mermaid">
+erDiagram
+
+        SecurityClassification {
+            PUBLICO PUBLICO
+RESTRINGIDO RESTRINGIDO
+CONFIDENCIAL CONFIDENCIAL
+SECRETO SECRETO
+ALTO_SECRETO ALTO_SECRETO
+        }
+
+
+
+        DiplomaticRole {
+            EMBAJADOR EMBAJADOR
+MINISTRO_CONSEJERO MINISTRO_CONSEJERO
+CONSEJERO CONSEJERO
+PRIMER_SECRETARIO PRIMER_SECRETARIO
+SEGUNDO_SECRETARIO SEGUNDO_SECRETARIO
+TERCER_SECRETARIO TERCER_SECRETARIO
+AGREGADO AGREGADO
+FUNCIONARIO_ADMINISTRATIVO FUNCIONARIO_ADMINISTRATIVO
+CONSULTOR_EXTERNO CONSULTOR_EXTERNO
+INVITADO INVITADO
+        }
+
+
+
+        DocumentType {
+            HOJA_REMISION_OGA HOJA_REMISION_OGA
+HOJA_REMISION_PCO HOJA_REMISION_PCO
+HOJA_REMISION_PRU HOJA_REMISION_PRU
+GUIA_VALIJA_ENTRADA_ORDINARIA GUIA_VALIJA_ENTRADA_ORDINARIA
+GUIA_VALIJA_ENTRADA_EXTRAORDINARIA GUIA_VALIJA_ENTRADA_EXTRAORDINARIA
+GUIA_VALIJA_SALIDA_ORDINARIA GUIA_VALIJA_SALIDA_ORDINARIA
+GUIA_VALIJA_SALIDA_EXTRAORDINARIA GUIA_VALIJA_SALIDA_EXTRAORDINARIA
+NOTA_DIPLOMATICA NOTA_DIPLOMATICA
+DESPACHO_TELEGRAFICO DESPACHO_TELEGRAFICO
+MEMORANDUM_INTERNO MEMORANDUM_INTERNO
+MEMORANDUM_EXTERNO MEMORANDUM_EXTERNO
+COMUNICADO_PRENSA COMUNICADO_PRENSA
+INFORME_TECNICO INFORME_TECNICO
+OTRO OTRO
+        }
+
+
+
+        DocumentStatus {
+            DRAFT DRAFT
+PENDING_REVIEW PENDING_REVIEW
+UNDER_REVIEW UNDER_REVIEW
+APPROVED APPROVED
+REJECTED REJECTED
+ARCHIVED ARCHIVED
+DELETED DELETED
+        }
+
+
+
+        WorkflowStatus {
+            CREATED CREATED
+IN_PROGRESS IN_PROGRESS
+PENDING_APPROVAL PENDING_APPROVAL
+APPROVED APPROVED
+REJECTED REJECTED
+COMPLETED COMPLETED
+CANCELLED CANCELLED
+        }
+
+
+
+        NotificationStatus {
+            PENDING PENDING
+SENT SENT
+DELIVERED DELIVERED
+READ READ
+FAILED FAILED
+        }
+
+
+
+        UnidadRemitente {
+            OGA OGA
+PCO PCO
+PRU PRU
+CON CON
+ADM ADM
+        }
+
+
+
+        TipoGuia {
+            ENTRADA ENTRADA
+SALIDA SALIDA
+        }
+
+
+
+        ModalidadValija {
+            ORDINARIA ORDINARIA
+EXTRAORDINARIA EXTRAORDINARIA
+        }
+
+
+
+        EstadoPrecinto {
+            INTACTO INTACTO
+ROTO ROTO
+FALTANTE FALTANTE
+        }
+
+  "users" {
+    String id "🗝️"
+    String email
+    String name
+    String password "❓"
+    String avatar "❓"
+    DiplomaticRole diplomaticRole
+    SecurityClassification securityClearance
+    String embassy "❓"
+    String department "❓"
+    String employeeId "❓"
+    Boolean isActive
+    Boolean isVerified
+    DateTime lastLoginAt "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "accounts" {
+    String id "🗝️"
+    String type
+    String provider
+    String providerAccountId
+    String refresh_token "❓"
+    String access_token "❓"
+    Int expires_at "❓"
+    String token_type "❓"
+    String scope "❓"
+    String id_token "❓"
+    String session_state "❓"
+    }
+
+
+  "sessions" {
+    String id "🗝️"
+    String sessionToken
+    DateTime expires
+    }
+
+
+  "verification_tokens" {
+    String identifier
+    String token
+    DateTime expires
+    }
+
+
+  "documents" {
+    String id "🗝️"
+    String title
+    String description "❓"
+    DocumentType type
+    DocumentStatus status
+    SecurityClassification classification
+    String documentNumber "❓"
+    String referenceNumber "❓"
+    Int version
+    String originalFileName "❓"
+    String storagePath "❓"
+    Int fileSize "❓"
+    String mimeType "❓"
+    String checksum "❓"
+    String ocrText "❓"
+    Float ocrConfidence "❓"
+    Json extractedData "❓"
+    DateTime documentDate "❓"
+    DateTime expirationDate "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "workflows" {
+    String id "🗝️"
+    String name
+    String description "❓"
+    Int version
+    WorkflowStatus status
+    Boolean isActive
+    Boolean isTemplate
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "workflow_steps" {
+    String id "🗝️"
+    String name
+    String description "❓"
+    Int stepOrder
+    Boolean isRequired
+    Boolean autoExecute
+    Int timeoutHours "❓"
+    WorkflowStatus status
+    DateTime startedAt "❓"
+    DateTime completedAt "❓"
+    Json inputData "❓"
+    Json outputData "❓"
+    String notes "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "document_workflows" {
+    String id "🗝️"
+    WorkflowStatus status
+    DateTime startedAt
+    DateTime completedAt "❓"
+    Json data "❓"
+    String notes "❓"
+    }
+
+
+  "notifications" {
+    String id "🗝️"
+    String title
+    String message
+    String type
+    Int priority
+    NotificationStatus status
+    DateTime readAt "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "audit_logs" {
+    String id "🗝️"
+    String action
+    String entity
+    String entityId
+    Json oldValues "❓"
+    Json newValues "❓"
+    Json changes "❓"
+    String ipAddress "❓"
+    String userAgent "❓"
+    String sessionId "❓"
+    DateTime createdAt
+    }
+
+
+  "system_config" {
+    String id "🗝️"
+    String key
+    String value
+    String description "❓"
+    Boolean isPublic
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "file_uploads" {
+    String id "🗝️"
+    String originalName
+    String fileName
+    String storagePath
+    Int fileSize
+    String mimeType
+    String checksum
+    Boolean isProcessed
+    String processingError "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "hojas_remision" {
+    String id "🗝️"
+    String numeroDocumento
+    UnidadRemitente unidadRemitente
+    DateTime fechaEmision
+    String asunto
+    String destino
+    String observaciones "❓"
+    SecurityClassification clasificacion
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "guias_valija" {
+    String id "🗝️"
+    String numeroGuia
+    TipoGuia tipoGuia
+    ModalidadValija modalidad
+    DateTime fechaDespacho "❓"
+    DateTime fechaRecepcion "❓"
+    String origen
+    String destino
+    SecurityClassification clasificacion
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "valijas_internas" {
+    String id "🗝️"
+    String numeroValija
+    Int orden
+    String descripcion "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "items_valija" {
+    String id "🗝️"
+    Int orden
+    String descripcion
+    Int cantidad
+    String observaciones "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "precintos" {
+    String id "🗝️"
+    String numeroPrecinto
+    EstadoPrecinto estado
+    String observaciones "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+
+  "document_authorizations" {
+    String id "🗝️"
+    Boolean canRead
+    Boolean canEdit
+    Boolean canDelete
+    Boolean canShare
+    DateTime validFrom
+    DateTime validUntil "❓"
+    String reason "❓"
+    DateTime createdAt
+    DateTime updatedAt
+    }
+
+    "users" o|--|| "DiplomaticRole" : "enum:diplomaticRole"
+    "users" o|--|| "SecurityClassification" : "enum:securityClearance"
+    "users" o{--}o "accounts" : ""
+    "users" o{--}o "sessions" : ""
+    "users" o{--}o "documents" : ""
+    "users" o{--}o "documents" : ""
+    "users" o{--}o "workflows" : ""
+    "users" o{--}o "workflow_steps" : ""
+    "users" o{--}o "notifications" : ""
+    "users" o{--}o "notifications" : ""
+    "users" o{--}o "audit_logs" : ""
+    "users" o{--}o "hojas_remision" : ""
+    "users" o{--}o "guias_valija" : ""
+    "users" o{--}o "document_authorizations" : ""
+    "users" o{--}o "document_authorizations" : ""
+    "users" o{--}o "file_uploads" : ""
+    "accounts" o|--|| "users" : "user"
+    "sessions" o|--|| "users" : "user"
+    "documents" o|--|| "DocumentType" : "enum:type"
+    "documents" o|--|| "DocumentStatus" : "enum:status"
+    "documents" o|--|| "SecurityClassification" : "enum:classification"
+    "documents" o|--|| "users" : "creator"
+    "documents" o|--|o "users" : "assignedTo"
+    "documents" o{--}o "document_workflows" : ""
+    "documents" o|--|o "documents" : "parentDocument"
+    "documents" o{--}o "notifications" : ""
+    "documents" o{--}o "audit_logs" : ""
+    "documents" o{--}o "hojas_remision" : ""
+    "documents" o{--}o "guias_valija" : ""
+    "documents" o{--}o "document_authorizations" : ""
+    "workflows" o|--|| "WorkflowStatus" : "enum:status"
+    "workflows" o|--|| "users" : "creator"
+    "workflows" o{--}o "workflow_steps" : ""
+    "workflows" o{--}o "document_workflows" : ""
+    "workflow_steps" o|--|| "WorkflowStatus" : "enum:status"
+    "workflow_steps" o|--|| "workflows" : "workflow"
+    "workflow_steps" o|--|o "users" : "assignedTo"
+    "document_workflows" o|--|| "WorkflowStatus" : "enum:status"
+    "document_workflows" o|--|| "documents" : "document"
+    "document_workflows" o|--|| "workflows" : "workflow"
+    "notifications" o|--|| "NotificationStatus" : "enum:status"
+    "notifications" o|--|o "users" : "sender"
+    "notifications" o|--|| "users" : "receiver"
+    "notifications" o|--|o "documents" : "document"
+    "audit_logs" o|--|o "users" : "user"
+    "audit_logs" o|--|o "documents" : "document"
+    "file_uploads" o|--|o "users" : "uploadedBy"
+    "hojas_remision" o|--|| "UnidadRemitente" : "enum:unidadRemitente"
+    "hojas_remision" o|--|| "SecurityClassification" : "enum:clasificacion"
+    "hojas_remision" o|--|| "documents" : "document"
+    "hojas_remision" o|--|| "users" : "createdBy"
+    "guias_valija" o|--|| "TipoGuia" : "enum:tipoGuia"
+    "guias_valija" o|--|| "ModalidadValija" : "enum:modalidad"
+    "guias_valija" o|--|| "SecurityClassification" : "enum:clasificacion"
+    "guias_valija" o|--|| "documents" : "document"
+    "guias_valija" o|--|| "users" : "createdBy"
+    "guias_valija" o{--}o "precintos" : ""
+    "guias_valija" o{--}o "valijas_internas" : ""
+    "valijas_internas" o|--|| "guias_valija" : "guiaValija"
+    "valijas_internas" o{--}o "items_valija" : ""
+    "valijas_internas" o{--}o "precintos" : ""
+    "items_valija" o|--|| "valijas_internas" : "valijaInterna"
+    "precintos" o|--|| "EstadoPrecinto" : "enum:estado"
+    "precintos" o|--|o "guias_valija" : "guiaValija"
+    "precintos" o|--|o "valijas_internas" : "valijaInterna"
+    "document_authorizations" o|--|| "documents" : "document"
+    "document_authorizations" o|--|| "users" : "user"
+    "document_authorizations" o|--|| "users" : "authorizedBy"
+            </div>
+        </div>
+
+        <div class="legend">
+            <h2>📋 Descripción de las Tablas Principales</h2>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <h4>👤 users</h4>
+                    <ul>
+                        <li>Usuarios del sistema</li>
+                        <li>Roles diplomáticos</li>
+                        <li>Nivel de seguridad</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <h4>📄 documents</h4>
+                    <ul>
+                        <li>Documentos principales</li>
+                        <li>Clasificación de seguridad</li>
+                        <li>Datos OCR extraídos</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <h4>📋 hojas_remision</h4>
+                    <ul>
+                        <li>Hojas de remisión</li>
+                        <li>OGA, PCO, PRU</li>
+                        <li>Documentos diplomáticos</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <h4>📦 guias_valija</h4>
+                    <ul>
+                        <li>Guías de valija</li>
+                        <li>Entrada/Salida</li>
+                        <li>Ordinaria/Extraordinaria</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <h4>🔄 workflows</h4>
+                    <ul>
+                        <li>Flujos de trabajo</li>
+                        <li>Aprobaciones</li>
+                        <li>Pasos configurables</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <h4>🔔 notifications</h4>
+                    <ul>
+                        <li>Notificaciones</li>
+                        <li>Alertas del sistema</li>
+                        <li>Comunicaciones</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <h4>📝 audit_logs</h4>
+                    <ul>
+                        <li>Registro de auditoría</li>
+                        <li>Cambios en documentos</li>
+                        <li>Trazabilidad completa</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <h4>🔒 document_authorizations</h4>
+                    <ul>
+                        <li>Permisos de documentos</li>
+                        <li>Control de acceso</li>
+                        <li>Temporalidad</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
