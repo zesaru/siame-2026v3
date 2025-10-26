@@ -16,7 +16,7 @@ import path from "path"
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 1. Verificar autenticacion
@@ -29,7 +29,7 @@ export async function GET(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // 2. Obtener documento con informacion del usuario
     const document = await prisma.document.findUnique({
@@ -153,7 +153,7 @@ export async function GET(
     }
 
     // 9. Retornar archivo
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers,
     })

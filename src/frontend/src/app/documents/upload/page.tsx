@@ -138,9 +138,17 @@ export default function UploadDocumentPage() {
 
         // Actualizar formulario con datos mapeados
         setFormData(prev => {
+          // Convertir todos los valores a string para compatibilidad de tipos
+          const mappedData = Object.entries(mappingResult.formData).reduce((acc, [key, value]) => {
+            if (value !== undefined && value !== null) {
+              acc[key] = String(value)
+            }
+            return acc
+          }, {} as Record<string, string>)
+
           const updated = {
             ...prev,
-            ...mappingResult.formData
+            ...mappedData
           }
           console.log("🔄 Updating formData:", updated)
           return updated
@@ -486,8 +494,6 @@ export default function UploadDocumentPage() {
         {/* STEP 2: Review & Complete */}
         {currentStep === 2 && (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Debug: Log formData */}
-            {console.log("🎯 Step 2 - Current formData:", formData)}
             {/* Layout: Preview on left, Form on right */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* File Preview - Left Side */}
@@ -781,7 +787,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="origen" className="flex items-center gap-2">
                       Origen
                       {extractedFields.has("origen") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input
@@ -799,7 +805,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="destino" className="flex items-center gap-2">
                       Destino
                       {extractedFields.has("destino") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input
@@ -820,7 +826,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="numeroGuia" className="flex items-center gap-2">
                       Número de Guía
                       {extractedFields.has("numeroGuia") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input
@@ -838,7 +844,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="tipoGuia" className="flex items-center gap-2">
                       Tipo de Guía
                       {extractedFields.has("tipoGuia") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Select
@@ -858,7 +864,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="modalidad" className="flex items-center gap-2">
                       Modalidad
                       {extractedFields.has("modalidad") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Select
@@ -881,7 +887,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="preparadoPor" className="flex items-center gap-2">
                       Preparado Por
                       {extractedFields.has("preparadoPor") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input
@@ -899,7 +905,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="revisadoPor" className="flex items-center gap-2">
                       Revisado Por
                       {extractedFields.has("revisadoPor") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input
@@ -920,7 +926,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="pesoTotalItems" className="flex items-center gap-2">
                       Peso Total Items (Kgs)
                       {extractedFields.has("pesoTotalItems") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input
@@ -939,7 +945,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="pesoOficial" className="flex items-center gap-2">
                       Peso Oficial (Kgs)
                       {extractedFields.has("pesoOficial") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input
@@ -958,7 +964,7 @@ export default function UploadDocumentPage() {
                     <Label htmlFor="totalItems" className="flex items-center gap-2">
                       Total de Items
                       {extractedFields.has("totalItems") && (
-                        <Sparkles className="h-3 w-3 text-blue-500" title="Extraído con Azure" />
+                        <Sparkles className="h-3 w-3 text-blue-500" />
                       )}
                     </Label>
                     <Input

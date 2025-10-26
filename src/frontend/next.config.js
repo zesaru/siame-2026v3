@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configuración experimental para Next.js 15
-  experimental: {
-    appDir: true,
-    serverComponentsExternalPackages: ['@prisma/client'],
-  },
+  // Configuración para Next.js 15
+  serverExternalPackages: ['@prisma/client'],
 
   // Configuración de imágenes
   images: {
