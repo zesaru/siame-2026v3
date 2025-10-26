@@ -7,6 +7,12 @@ generator client {
   binaryTargets = ["native", "debian-openssl-3.0.x", "windows"]
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../docs/database-erd.md"
+  theme    = "forest"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -512,7 +518,7 @@ model GuiaValija {
   documentId          String                @unique
 
   // Identificación
-  numeroGuia          String                @unique
+  numeroGuia          String?               @unique // Opcional - puede no ser detectado por Azure OCR
   tipoGuia            TipoGuia
   modalidad           ModalidadValija
 
@@ -526,6 +532,23 @@ model GuiaValija {
 
   // Clasificación
   clasificacion       SecurityClassification
+
+  // Personal responsable (auto-extraído por Azure)
+  preparadoPor        String?
+  revisadoPor         String?
+  receptorFirma       String?
+
+  // Información de peso (auto-extraído por Azure)
+  pesoTotalItems      Float?                // Peso total de items
+  pesoOficial         Float?                // Peso oficial (incluye embalaje)
+
+  // Totales (auto-extraído por Azure)
+  totalItems          Int?                  // Total de items en la valija
+
+  // Información de transporte (opcional)
+  numeroGuiaAerea     String?
+  numeroBolsa         String?
+  tipoBolsa           String?               // CAJA, BOLSA, etc.
 
   // Relaciones
   document            Document              @relation(fields: [documentId], references: [id], onDelete: Cascade)
