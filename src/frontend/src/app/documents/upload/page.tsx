@@ -19,6 +19,8 @@ import { detectDocumentType } from "@/lib/detection/document-detector"
 import { mapAzureDataToForm, generateExtractionSummary } from "@/lib/utils/form-mapper"
 import { Sparkles, FileText, Crosshair, UploadCloud, ArrowLeft, ArrowRight } from "lucide-react"
 import { BoundingBoxOverlay } from "@/components/document/BoundingBoxOverlay"
+import { HojasRemisionTable, HojaRemisionItem } from "@/components/hojas-remision/HojasRemisionTable"
+import { parseTableToHojasRemision } from "@/lib/ocr/extractHojaRemision"
 
 export default function UploadDocumentPage() {
   const router = useRouter()
@@ -46,13 +48,17 @@ export default function UploadDocumentPage() {
   const [showRawJson, setShowRawJson] = useState(false)
   const [showBoundingBoxes, setShowBoundingBoxes] = useState(false)
 
+  // Hojas de Remisión states
+  const [hojasRemisionItems, setHojasRemisionItems] = useState<HojaRemisionItem[]>([])
+  const [savingHojasRemision, setSavingHojasRemision] = useState(false)
+  const [guiaValijaId, setGuiaValijaId] = useState<string | null>(null)
+
   const [formData, setFormData] = useState({
     title: "",
     type: "HOJA_REMISION_OGA",
     classification: "RESTRINGIDO",
     unidadRemitente: "OGA",
     destino: "",
-    asunto: "",
     observaciones: "",
 
     // Guía de Valija specific fields
@@ -120,6 +126,32 @@ export default function UploadDocumentPage() {
         if (result.rawAzureResponse) {
           setAzureRawResponse(result.rawAzureResponse)
           console.log("📦 RAW Azure Response received:", result.rawAzureResponse)
+
+          // 📋 PROCESAR TABLAS DE HOJAS DE REMISIÓN
+          if (result.rawAzureResponse.tables && result.rawAzureResponse.tables.length > 0) {
+            console.log("🔍 Detectadas", result.rawAzureResponse.tables.length, "tablas en el documento")
+
+            // Buscar tabla con 6 columnas (estructura de Guía de Valija)
+            const hojasTable = result.rawAzureResponse.tables.find((t: any) => t.columnCount === 6)
+
+            if (hojasTable) {
+              console.log("✅ Tabla de Hojas de Remisión encontrada con", hojasTable.rowCount, "filas")
+
+              // Parsear tabla a items de HojaRemision
+              const items = parseTableToHojasRemision(hojasTable, formData.classification || "RESTRINGIDO")
+              console.log("📝 Items de HR extraídos:", items)
+
+              setHojasRemisionItems(items)
+
+              toast({
+                title: "📋 Hojas de Remisión Detectadas",
+                description: `Se encontraron ${items.length} items en la guía de valija`,
+                variant: "success",
+              })
+            } else {
+              console.log("⚠️ No se encontró tabla con 6 columnas")
+            }
+          }
         }
 
         // Guardar el texto completo extraído
@@ -278,6 +310,78 @@ export default function UploadDocumentPage() {
     }
   }
 
+  /**
+   * Guarda todas las Hojas de Remisión detectadas
+   */
+  const handleSaveHojasRemision = async () => {
+    if (!guiaValijaId) {
+      toast({
+        title: "Error",
+        description: "Primero debes guardar la Guía de Valija",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (hojasRemisionItems.length === 0) {
+      toast({
+        title: "Error",
+        description: "No hay hojas de remisión para guardar",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setSavingHojasRemision(true)
+
+    try {
+      // Preparar datos para el bulk create
+      const bulkData = {
+        guiaValijaId: guiaValijaId,
+        fechaEmision: new Date().toISOString(),
+        items: hojasRemisionItems,
+      }
+
+      console.log("📤 Enviando bulk create de Hojas de Remisión:", bulkData)
+
+      const response = await fetch("/api/hojas-remision/bulk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bulkData),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Error al guardar hojas de remisión")
+      }
+
+      // Éxito
+      toast({
+        title: "✅ Hojas de Remisión Guardadas",
+        description: result.message || `${result.data.length} hojas de remisión creadas exitosamente`,
+        variant: "success",
+      })
+
+      // Limpiar items después de guardar
+      setHojasRemisionItems([])
+
+      // Opcionalmente redirigir o actualizar UI
+      console.log("✅ Hojas de Remisión guardadas:", result.data)
+    } catch (error) {
+      console.error("Error saving hojas de remision:", error)
+      toast({
+        title: "Error al guardar hojas de remisión",
+        description: error instanceof Error ? error.message : "Ocurrió un error inesperado",
+        variant: "destructive",
+      })
+    } finally {
+      setSavingHojasRemision(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -305,9 +409,6 @@ export default function UploadDocumentPage() {
       }
       if (formData.destino) {
         uploadData.append("destino", formData.destino)
-      }
-      if (formData.asunto) {
-        uploadData.append("asunto", formData.asunto)
       }
       if (formData.observaciones) {
         uploadData.append("observaciones", formData.observaciones)
@@ -354,12 +455,28 @@ export default function UploadDocumentPage() {
         throw new Error(result.error || "Error al subir documento")
       }
 
+      // Capturar guiaValijaId si es una Guía de Valija
+      if (result.data.guiaValija) {
+        setGuiaValijaId(result.data.guiaValija.id)
+        console.log("✅ Guía de Valija ID capturado:", result.data.guiaValija.id)
+      }
+
       // Exito
       toast({
         title: "Documento subido exitosamente",
         description: `${result.data.document.title} ha sido creado`,
         variant: "success",
       })
+
+      // Si hay hojas de remisión pendientes, no redirigir automáticamente
+      if (hojasRemisionItems.length > 0 && guiaValijaId) {
+        toast({
+          title: "📋 Hojas de Remisión Pendientes",
+          description: "Ahora puedes guardar las hojas de remisión detectadas",
+          variant: "info",
+        })
+        return
+      }
 
       // Redirigir a la lista de documentos
       router.push("/documents")
@@ -980,6 +1097,18 @@ export default function UploadDocumentPage() {
                 </div>
               </CardContent>
             </Card>
+
+          {/* Hojas de Remisión Detectadas */}
+          {hojasRemisionItems.length > 0 && (
+            <HojasRemisionTable
+              items={hojasRemisionItems}
+              onItemsChange={setHojasRemisionItems}
+              onSave={async () => {
+                await handleSaveHojasRemision()
+              }}
+              isSaving={savingHojasRemision}
+            />
+          )}
 
           {/* Botones de Acción */}
           <Card>

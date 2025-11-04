@@ -54,7 +54,7 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-background font-sans text-foreground antialiased">
+      <body className="min-h-screen bg-background font-sans text-foreground antialiased" suppressHydrationWarning>
         <a href="#main-content" className="skip-to-content">
           Saltar al contenido principal
         </a>

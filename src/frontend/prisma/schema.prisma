@@ -490,16 +490,25 @@ model HojaRemision {
 
   // Identificación
   numeroDocumento   String                @unique
-  unidadRemitente   UnidadRemitente
+  unidadRemitente   String                // Cambiado a String para soportar 150+ siglas (ej: DAC, OGA, etc)
   fechaEmision      DateTime
 
   // Contenido
-  asunto            String
+  asunto            String?               // Asunto del documento (opcional, usuario lo completa)
   destino           String
   observaciones     String?
 
+  // Datos adicionales de la guía (auto-extraído por Azure OCR)
+  cantidad          Int?                  // Cantidad de items
+  pesoItem          Float?                // Peso del item en Kg
+  tipoEmbalaje      String?               // Tipo de embalaje: CAJA, SOBRE, PAQUETE, etc (extraído del campo CONTENIDO)
+
   // Clasificación
   clasificacion     SecurityClassification
+
+  // Relación con Guía de Valija (una HR puede venir de una guía)
+  guiaValijaId      String?
+  guiaValija        GuiaValija?           @relation(fields: [guiaValijaId], references: [id])
 
   // Relaciones
   document          Document              @relation(fields: [documentId], references: [id], onDelete: Cascade)
@@ -556,6 +565,7 @@ model GuiaValija {
   createdBy           User                  @relation(fields: [createdById], references: [id])
   precintos           Precinto[]
   valijasInternas     ValijaInterna[]
+  hojasRemision       HojaRemision[]        // Hojas de Remisión detectadas en esta guía
 
   // Metadatos
   createdAt           DateTime              @default(now())
@@ -659,4 +669,31 @@ model DocumentAuthorization {
 
   @@unique([documentId, userId])
   @@map("document_authorizations")
+}
+
+// ================================
+// CATÁLOGOS
+// ================================
+
+model UnidadOrganizacional {
+  id            String                @id @default(cuid())
+
+  // Identificación
+  sigla         String                @unique  // DAC, OGA, PCO, PRU, etc (150+ siglas)
+  nombre        String                        // Nombre completo de la unidad
+  descripcion   String?                       // Descripción opcional
+
+  // Organización
+  tipo          String?                       // Tipo de unidad: Dirección, Oficina, Departamento, etc.
+  jerarquia     Int?                          // Nivel jerárquico
+  unidadPadre   String?                       // Sigla de la unidad padre
+
+  // Estado
+  isActive      Boolean               @default(true)
+
+  // Metadatos
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@map("unidades_organizacionales")
 }

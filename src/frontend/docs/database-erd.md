@@ -281,11 +281,14 @@ FALTANTE FALTANTE
   "hojas_remision" {
     String id "🗝️"
     String numeroDocumento 
-    UnidadRemitente unidadRemitente 
+    String unidadRemitente 
     DateTime fechaEmision 
-    String asunto 
+    String asunto "❓"
     String destino 
     String observaciones "❓"
+    Int cantidad "❓"
+    Float pesoItem "❓"
+    String tipoEmbalaje "❓"
     SecurityClassification clasificacion 
     DateTime createdAt 
     DateTime updatedAt 
@@ -360,6 +363,20 @@ FALTANTE FALTANTE
     DateTime updatedAt 
     }
   
+
+  "unidades_organizacionales" {
+    String id "🗝️"
+    String sigla 
+    String nombre 
+    String descripcion "❓"
+    String tipo "❓"
+    Int jerarquia "❓"
+    String unidadPadre "❓"
+    Boolean isActive 
+    DateTime createdAt 
+    DateTime updatedAt 
+    }
+  
     "users" o|--|| "DiplomaticRole" : "enum:diplomaticRole"
     "users" o|--|| "SecurityClassification" : "enum:securityClearance"
     "users" o{--}o "accounts" : ""
@@ -407,8 +424,8 @@ FALTANTE FALTANTE
     "audit_logs" o|--|o "users" : "user"
     "audit_logs" o|--|o "documents" : "document"
     "file_uploads" o|--|o "users" : "uploadedBy"
-    "hojas_remision" o|--|| "UnidadRemitente" : "enum:unidadRemitente"
     "hojas_remision" o|--|| "SecurityClassification" : "enum:clasificacion"
+    "hojas_remision" o|--|o "guias_valija" : "guiaValija"
     "hojas_remision" o|--|| "documents" : "document"
     "hojas_remision" o|--|| "users" : "createdBy"
     "guias_valija" o|--|| "TipoGuia" : "enum:tipoGuia"
