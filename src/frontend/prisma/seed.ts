@@ -4,7 +4,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -33,7 +33,7 @@ async function main() {
   const embajador = await prisma.user.create({
     data: {
       name: 'Luis Alberto Chuquihuara Chil',
-      email: 'lchuquihuara@embaperu.jp',
+      email: 'lchuquihuara@maeuec.es',
       password: hashedPassword,
       diplomaticRole: 'EMBAJADOR',
       securityClearance: 'ALTO_SECRETO',
@@ -46,7 +46,7 @@ async function main() {
   const consejero = await prisma.user.create({
     data: {
       name: 'María Elena Castillo Ayala',
-      email: 'mcastillo@embaperu.jp',
+      email: 'mcastillo@maeuec.es',
       password: hashedPassword,
       diplomaticRole: 'CONSEJERO',
       securityClearance: 'SECRETO',
@@ -59,7 +59,7 @@ async function main() {
   const primerSecretario = await prisma.user.create({
     data: {
       name: 'Carlos Raúl Mendoza Flores',
-      email: 'cmendoza@embaperu.jp',
+      email: 'cmendoza@maeuec.es',
       password: hashedPassword,
       diplomaticRole: 'PRIMER_SECRETARIO',
       securityClearance: 'CONFIDENCIAL',
@@ -72,7 +72,7 @@ async function main() {
   const segundoSecretario = await prisma.user.create({
     data: {
       name: 'Ana Patricia Quispe Mamani',
-      email: 'aquispe@embaperu.jp',
+      email: 'aquispe@maeuec.es',
       password: hashedPassword,
       diplomaticRole: 'SEGUNDO_SECRETARIO',
       securityClearance: 'RESTRINGIDO',
@@ -85,7 +85,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       name: 'Admin Sistema SIAME',
-      email: 'admin@embaperu.jp',
+      email: 'admin@maeuec.es',
       password: hashedPassword,
       diplomaticRole: 'EMBAJADOR',
       securityClearance: 'ALTO_SECRETO',
